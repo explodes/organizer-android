@@ -8,14 +8,22 @@
         android:id="@+id/nav_group_categories"
         android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_create_category"
-            android:icon="@drawable/ic_create_new_folder_black_24dp"
-            android:title="@string/nav_title_create_category"/>
+            android:id="@+id/nav_group_categories_submenu"
+            android:title="@string/nav_title_categories">
+            <menu>
+
+            </menu>
+        </item>
     </group>
 
     <group
         android:id="@+id/nav_group_misc"
         android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_create_category"
+            android:icon="@drawable/ic_create_new_folder_black_24dp"
+            android:title="@string/nav_title_create_category"/>
+
         <item
             android:id="@+id/nav_share"
             android:icon="@drawable/ic_share_black_24dp"

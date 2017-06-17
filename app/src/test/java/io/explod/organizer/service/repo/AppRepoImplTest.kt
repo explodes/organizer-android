@@ -18,7 +18,7 @@ class AppRepoImplTest : BaseRoboTest() {
         repo = AppRepoImpl()
     }
 
-    @Ignore("(evan): LiveData isn't giving us a 'first' value")
+    @Ignore("(evan): LiveData/Robolectric isn't giving us a 'first' value")
     @Test
     fun getAllCategories() {
         // getAllCategories should return all Categories
@@ -36,6 +36,52 @@ class AppRepoImplTest : BaseRoboTest() {
         assertEquals("cat3", categories[0].name)
         assertEquals("cat2", categories[1].name)
         assertEquals("cat1", categories[2].name)
+    }
+
+    @Ignore("(evan): LiveData/Robolectric isn't giving us a 'first' value")
+    @Test
+    fun getAllCategoriesWithStats() {
+        // getAllCategories should return all Categories
+        // in createdDate-DESC order
+        offloadWork {
+            val cat1 = repo.db.categories().insert(Category.new("cat1"))
+            val cat2 = repo.db.categories().insert(Category.new("cat2"))
+            val cat3 = repo.db.categories().insert(Category.new("cat3"))
+
+            repo.db.items().insert(Item.new(cat1, "item11", rating = -1))
+            repo.db.items().insert(Item.new(cat1, "item12", rating = 2))
+            repo.db.items().insert(Item.new(cat1, "item13", rating = 4))
+
+            repo.db.items().insert(Item.new(cat2, "item21", rating = 3))
+            repo.db.items().insert(Item.new(cat2, "item22", rating = -1))
+            repo.db.items().insert(Item.new(cat2, "item23", rating = 5))
+            repo.db.items().insert(Item.new(cat2, "item24", rating = -1))
+
+            repo.db.items().insert(Item.new(cat3, "item31", rating = 1))
+            repo.db.items().insert(Item.new(cat3, "item32", rating = 3))
+            repo.db.items().insert(Item.new(cat3, "item33", rating = 5))
+            repo.db.items().insert(Item.new(cat3, "item34", rating = 1))
+            repo.db.items().insert(Item.new(cat3, "item35", rating = 3))
+            repo.db.items().insert(Item.new(cat3, "item36", rating = 5))
+
+        }
+
+        val categories = repo.getAllCategoriesWithStats().first { it != null }
+
+        assertNotNull(categories)
+        assertEquals(3, categories!!.size)
+        assertEquals("cat3", categories[0].category.name)
+        assertEquals(6, categories[0].numRated)
+        assertEquals(18, categories[0].totalRating)
+        assertEquals(3.0f, categories[0].averageRating)
+        assertEquals("cat2", categories[1].category.name)
+        assertEquals(2, categories[1].numRated)
+        assertEquals(8, categories[1].totalRating)
+        assertEquals(4.0f, categories[1].averageRating)
+        assertEquals("cat1", categories[2].category.name)
+        assertEquals(2, categories[2].numRated)
+        assertEquals(6, categories[2].totalRating)
+        assertEquals(3.0f, categories[2].averageRating)
     }
 
     @Test
@@ -99,7 +145,7 @@ class AppRepoImplTest : BaseRoboTest() {
     }
 
 
-    @Ignore("(evan): LiveData isn't giving us a 'first' value")
+    @Ignore("(evan): LiveData/Robolectric isn't giving us a 'first' value")
     @Test
     fun getAllItemsForCategory() {
         // getAllItemsForCategory should return all Items that
@@ -125,7 +171,7 @@ class AppRepoImplTest : BaseRoboTest() {
         assertEquals(3, items!!.size)
         assertEquals("item23", items[0].name)
         assertEquals("item22", items[1].name)
-        assertEquals("item21", items[1].name)
+        assertEquals("item21", items[2].name)
     }
 
     @Test

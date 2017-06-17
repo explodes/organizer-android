@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData
 import android.net.Uri
 import io.explod.arch.data.Category
 import io.explod.arch.data.Item
+import io.explod.organizer.service.database.CategoryStats
 
 interface AppRepo {
 
@@ -13,6 +14,11 @@ interface AppRepo {
      * Get all Categories, sorted by createdDate descending
      */
     fun getAllCategories(): LiveData<List<Category>>
+
+    /**
+     * Get all Categories, with stats, sorted by createdDate descending
+     */
+    fun getAllCategoriesWithStats(): LiveData<List<CategoryStats>>
 
     /**
      * Look for a Category by id

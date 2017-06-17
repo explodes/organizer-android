@@ -8,13 +8,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import io.explod.arch.data.Category
 import io.explod.organizer.R
 import io.explod.organizer.extensions.*
 import io.explod.organizer.features.common.BaseFragment
 import io.explod.organizer.features.common.ListAdapter
 import io.explod.organizer.features.common.ListDiffCallback
 import io.explod.organizer.injection.ObjectGraph.injector
+import io.explod.organizer.service.database.CategoryStats
 import io.explod.organizer.service.tracking.Tracker
 import kotlinx.android.synthetic.main.fragment_category_list.*
 import kotlinx.android.synthetic.main.stub_category_list.*
@@ -63,16 +63,16 @@ class CategoryListFragment : BaseFragment(), CategoryAdapter.Listener {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        categoriesModel.categories.observe(this, Observer<List<Category>> { onCategories(it) })
+        categoriesModel.categoriesWithStats.observe(this, Observer<List<CategoryStats>> { onCategories(it) })
     }
 
-    override fun onCategoryClick(category: Category) {
+    override fun onCategoryClick(category: CategoryStats) {
         // todo(evan): handle click
-        tracker.event("categoryListCategoryClick", mapOf("name" to category.name))
+        tracker.event("categoryListCategoryClick", mapOf("name" to category.category.name))
         mainActivity?.showSnackbar("TODO: handle click")
     }
 
-    fun onCategories(categories: List<Category>?) {
+    fun onCategories(categories: List<CategoryStats>?) {
         if (recycler_categories == null || stub_categories_empty == null) return
 
         val hasCategories = categories?.isNotEmpty() ?: false
@@ -88,10 +88,10 @@ class CategoryListFragment : BaseFragment(), CategoryAdapter.Listener {
 
 }
 
-class CategoryAdapter : ListAdapter<Category, CategoryAdapter.CategoryViewHolder>() {
+class CategoryAdapter : ListAdapter<CategoryStats, CategoryAdapter.CategoryViewHolder>() {
 
     interface Listener {
-        fun onCategoryClick(category: Category)
+        fun onCategoryClick(category: CategoryStats)
     }
 
     var listener: Listener? = null
@@ -100,12 +100,12 @@ class CategoryAdapter : ListAdapter<Category, CategoryAdapter.CategoryViewHolder
         setHasStableIds(true)
     }
 
-    override fun createDiffCallback(old: List<Category>?, new: List<Category>?): ListDiffCallback<Category> {
+    override fun createDiffCallback(old: List<CategoryStats>?, new: List<CategoryStats>?): ListDiffCallback<CategoryStats> {
         return CategoryDiffCallback(old, new)
     }
 
     override fun getItemId(position: Int): Long {
-        return this[position]?.id ?: 0
+        return this[position]?.category?.id ?: 0
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
@@ -116,8 +116,8 @@ class CategoryAdapter : ListAdapter<Category, CategoryAdapter.CategoryViewHolder
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         val category = this[position] ?: return
 
-        holder.name.text = category.name
-        holder.itemCount.text = "3 items" // todo(evan): create CategoryWithCount
+        holder.name.text = category.category.name
+        holder.itemCount.text = holder.itemView.context?.resources?.getQuantityString(R.plurals.category_list_num_items, category.numItems, category.numItems) ?: ""
     }
 
     fun notifyClick(position: Int) {
@@ -142,14 +142,17 @@ class CategoryAdapter : ListAdapter<Category, CategoryAdapter.CategoryViewHolder
     }
 }
 
-class CategoryDiffCallback(old: List<Category>?, new: List<Category>?) : ListDiffCallback<Category>(old, new) {
-    override fun isTheSame(old: Category, new: Category): Boolean {
-        return old.id == new.id
+class CategoryDiffCallback(old: List<CategoryStats>?, new: List<CategoryStats>?) : ListDiffCallback<CategoryStats>(old, new) {
+
+    override fun isTheSame(old: CategoryStats, new: CategoryStats): Boolean {
+        return old.category.id == new.category.id
     }
 
-    override fun areContentsTheSame(old: Category, new: Category): Boolean {
-        return old.createdDate == new.createdDate &&
-                old.name == new.name
+    override fun areContentsTheSame(old: CategoryStats, new: CategoryStats): Boolean {
+        return old.category.createdDate == new.category.createdDate &&
+                old.category.name == new.category.name &&
+                old.numItems == new.numItems &&
+                old.averageRating == new.averageRating
     }
 
 }

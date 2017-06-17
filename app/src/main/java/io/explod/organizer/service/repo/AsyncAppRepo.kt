@@ -6,6 +6,7 @@ import com.fernandocejas.arrow.optional.Optional
 import io.explod.arch.data.Category
 import io.explod.arch.data.Item
 import io.explod.organizer.injection.ObjectGraph.injector
+import io.explod.organizer.service.database.CategoryStats
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.annotations.SchedulerSupport
@@ -37,6 +38,7 @@ class AsyncAppRepo {
     /* Categories */
 
     fun getAllCategories(): LiveData<List<Category>> = synchronously.getAllCategories()
+    fun getAllCategoriesWithStats(): LiveData<List<CategoryStats>> = synchronously.getAllCategoriesWithStats()
     fun getCategoryById(categoryId: Long): Single<Optional<Category>> = asSingle { Optional.fromNullable(synchronously.getCategoryById(categoryId)) }
     fun createCategory(name: String): Single<Category> = asSingle { synchronously.createCategory(name) }
     fun updateCategory(category: Category) = asCompletable { synchronously.updateCategory(category) }

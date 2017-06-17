@@ -12,7 +12,7 @@ class CategoryViewModel : ViewModel() {
     @Inject
     lateinit var repo: AsyncAppRepo
 
-    val categories by lazy(LazyThreadSafetyMode.NONE) { repo.getAllCategories() }
+    val categoriesWithStats by lazy(LazyThreadSafetyMode.NONE) { repo.getAllCategoriesWithStats() }
 
     init {
         inject()

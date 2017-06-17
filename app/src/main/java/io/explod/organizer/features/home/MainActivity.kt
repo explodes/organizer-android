@@ -1,12 +1,11 @@
 package io.explod.organizer.features.home
 
 import android.arch.lifecycle.Observer
-import android.content.res.Resources
 import android.os.Bundle
-import android.support.annotation.IdRes
 import android.support.design.widget.NavigationView
 import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
+import android.support.v4.widget.Space
 import android.support.v7.app.ActionBarDrawerToggle
 import android.text.TextUtils
 import android.view.Menu
@@ -15,10 +14,12 @@ import android.view.View
 import io.explod.arch.data.Category
 import io.explod.organizer.R
 import io.explod.organizer.extensions.getModel
+import io.explod.organizer.extensions.getResourceNameOrUnknown
 import io.explod.organizer.extensions.showSnackbar
 import io.explod.organizer.features.common.BaseActivity
 import io.explod.organizer.features.common.EditTextDialog
 import io.explod.organizer.injection.ObjectGraph.injector
+import io.explod.organizer.service.database.CategoryStats
 import io.explod.organizer.service.tracking.LevelW
 import io.explod.organizer.service.tracking.Tracker
 import io.reactivex.rxkotlin.subscribeBy
@@ -71,10 +72,10 @@ class MainActivity : BaseActivity() {
                     .commit()
         }
 
-        categoryModel.categories.observe(this, Observer<List<Category>> { onCategories(it) })
+        categoryModel.categoriesWithStats.observe(this, Observer<List<CategoryStats>> { onCategories(it) })
     }
 
-    fun onCategories(categories: List<Category>?) {
+    fun onCategories(categories: List<CategoryStats>?) {
         navManager.rebuildMenuCategories(categories)
     }
 
@@ -124,40 +125,65 @@ class MainActivity : BaseActivity() {
                 .show()
     }
 
-    fun trackWithResourceName(event: String, @IdRes res: Int) {
-        var idName: String
-        try {
-            idName = resources.getResourceName(res)
-        } catch (ex: Resources.NotFoundException) {
-            idName = "unknown-0x${Integer.toHexString(res)}"
-        }
-        tracker.event(event, mapOf("name" to idName))
-    }
 
     inner class NavViewManager : NavigationView.OnNavigationItemSelectedListener {
         override fun onNavigationItemSelected(item: MenuItem): Boolean {
-            handleStandardMenuItem(item.itemId)
+
+            if (item.itemId == 0) {
+                handleCategoryMenuClick(item)
+            } else {
+                handleStandardMenuItem(item)
+            }
             drawer_layout.closeDrawer(GravityCompat.START)
             return true
         }
 
-        fun handleStandardMenuItem(@IdRes itemId: Int) {
+        fun handleCategoryMenuClick(item: MenuItem) {
+            tracker.event("navCategoryItemClick", mapOf("name" to "category", "title" to item.title))
+            val tag = item.actionView?.tag ?: return
+            if (tag is Category) {
+                // todo(evan): open up Category view
+                showSnackbar("todo: open category")
+            }
+        }
 
-            trackWithResourceName("navStandardItemClick", itemId)
+        fun handleStandardMenuItem(item: MenuItem) {
+            tracker.event("navStandardItemClick", mapOf("name" to getResourceNameOrUnknown(item.itemId), "title" to item.title))
 
-            when (itemId) {
+            when (item.itemId) {
                 R.id.nav_create_category -> {
                     showCreateCategoryDialog()
                 }
                 R.id.nav_share -> {
+                    // todo(evan): open up Category view
+                    showSnackbar("todo: share somehow?")
                 }
                 R.id.nav_settings -> {
+                    // todo(evan): find useful preferences and open up SettingsActivity
+                    showSnackbar("todo: open up preferences")
                 }
             }
         }
 
-        fun rebuildMenuCategories(categories: List<Category>?) {
-            // todo(evan): re-create the category menu contents
+
+        fun rebuildMenuCategories(categories: List<CategoryStats>?) {
+            val group = nav_view?.menu?.findItem(R.id.nav_group_categories_submenu) ?: return
+            val menu = group.subMenu ?: return
+
+            menu.clear()
+
+            if (categories == null) {
+                group.isVisible = false
+            } else {
+                group.isVisible = true
+                categories.forEachIndexed { index, category ->
+                    val item = menu.add(0, 0, index, category.category.name)
+                    val view = Space(this@MainActivity)
+                    view.tag = category
+                    item.actionView = view
+                }
+            }
+
         }
     }
 

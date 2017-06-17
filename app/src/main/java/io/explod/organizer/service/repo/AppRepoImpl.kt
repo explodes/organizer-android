@@ -6,6 +6,7 @@ import io.explod.arch.data.AppDatabase
 import io.explod.arch.data.Category
 import io.explod.arch.data.Item
 import io.explod.organizer.injection.ObjectGraph.injector
+import io.explod.organizer.service.database.CategoryStats
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -26,6 +27,10 @@ class AppRepoImpl : AppRepo {
 
     override fun getAllCategories(): LiveData<List<Category>> {
         return db.categories().loadAll()
+    }
+
+    override fun getAllCategoriesWithStats(): LiveData<List<CategoryStats>> {
+        return db.categories().loadAllWithStats()
     }
 
     override fun getCategoryById(categoryId: Long): Category? {

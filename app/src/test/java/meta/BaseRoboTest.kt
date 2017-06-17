@@ -37,6 +37,11 @@ abstract class BaseRoboTest {
 
         val DEFAULT_TIMEOUT = 5_000L
 
+        private val OFFLOAD_NAME = "offload-"
+        private var sOffloadCount = 0L
+        private val nextOffloadName: String
+            get() = "$OFFLOAD_NAME-${++sOffloadCount}"
+
         /**
          * Wait for the Main looper to catch up on all of its pending events.
 
@@ -58,25 +63,38 @@ abstract class BaseRoboTest {
          * will let the tests run without crashing, but the app may be misusing
          * Room and the tests will not reflect that.
          */
+        @Throws(Exception::class)
         fun <T> offload(timeoutMillis: Long = DEFAULT_TIMEOUT, work: () -> T): T? {
             val success = arrayOf(false)
+            val error = arrayOfNulls<Throwable>(1)
+            val result = arrayOfNulls<Any>(1)
             val latch = CountDownLatch(1)
-            val thread = OffloadButWaitThread(work, {
-                success[0] = true
-                latch.countDown()
-            })
+            val thread = Thread({
+                try {
+                    result[0] = work()
+                    success[0] = true
+                } catch (ex: Throwable) {
+                    error[0] = ex
+                } finally {
+                    latch.countDown()
+                }
+            }, nextOffloadName)
             thread.start()
             latch.await(timeoutMillis, TimeUnit.MILLISECONDS)
+            if (error[0] != null) {
+                throw RuntimeException("Offloading was interrupted because of a failure", error[0])
+            }
             if (!success[0]) {
                 throw TimeoutException("Unable to perform work in a reasonable time frame")
             }
-            return thread.result
+            @Suppress("UNCHECKED_CAST")
+            return result[0] as T
         }
 
         /**
          * Shorthand for [offload] when you do not need a result
          */
-        fun offloadWork(timeoutMillis: Long = DEFAULT_TIMEOUT, work: () -> Any) {
+        fun offloadWork(timeoutMillis: Long = DEFAULT_TIMEOUT, work: () -> Unit) {
             offload(timeoutMillis, work)
         }
     }
@@ -109,24 +127,6 @@ class TestApp : App() {
         return DaggerTestObjectComponent.builder()
                 .appModule(AppModule(this))
                 .build()
-    }
-
-}
-
-private class OffloadButWaitThread<T>(val work: () -> T, val done: () -> Unit) : Thread(nextName) {
-
-    companion object {
-        private val NAME = "offload-work"
-        private var sCount = 0L
-        private val nextName: String
-            get() = "$NAME-${++sCount}"
-    }
-
-    var result: T? = null
-
-    override fun run() {
-        result = work()
-        done()
     }
 
 }
