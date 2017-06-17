@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "555744594c4f8b5bec8c6430e13f858c",
+    "identityHash": "1c22dbc6b7f77549f8f4dd8201faefc3",
     "entities": [
       {
         "tableName": "categories",
@@ -35,7 +35,7 @@
       },
       {
         "tableName": "items",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `category_id` INTEGER, `name` TEXT, `rating` INTEGER, `photo_uri` TEXT, `created_date` INTEGER, FOREIGN KEY(`category_id`) REFERENCES `categories`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `category_id` INTEGER, `name` TEXT, `rating` INTEGER, `photo_uri` TEXT, `created_date` INTEGER, FOREIGN KEY(`category_id`) REFERENCES `categories`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -87,7 +87,7 @@
         "foreignKeys": [
           {
             "table": "categories",
-            "onDelete": "NO ACTION",
+            "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
               "category_id"
@@ -101,7 +101,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"555744594c4f8b5bec8c6430e13f858c\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"1c22dbc6b7f77549f8f4dd8201faefc3\")"
     ]
   }
 }

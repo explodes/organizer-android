@@ -24,7 +24,7 @@ kapt {
 
 android {
     compileSdkVersion rootProject.sdkCompile
-    buildToolsVersion rootProject.buildTools
+    buildToolsVersion rootProject.buildToolsVersion
     defaultConfig {
         applicationId rootProject.applicationId
         minSdkVersion rootProject.sdkMin
@@ -39,10 +39,15 @@ android {
             }
         }
 
+        vectorDrawables {
+            useSupportLibrary = true
+        }
+
     }
 
     buildTypes {
         debug {
+            ext.alwaysUpdateBuildId = false // Augments Fabric, improves build speed
         }
         release {
             minifyEnabled false
@@ -102,8 +107,8 @@ dependencies {
     implementation 'com.trello.rxlifecycle2:rxlifecycle-android:' + rootProject.rxLifecycleVersion
     implementation 'com.trello.rxlifecycle2:rxlifecycle-components:' + rootProject.rxLifecycleVersion
     implementation 'com.trello.rxlifecycle2:rxlifecycle-kotlin:' + rootProject.rxLifecycleVersion
-    implementation 'com.fernandocejas:arrow:' + rootProject.arrowVersion // provides an Optional implementation
-
+    implementation 'com.fernandocejas:arrow:' + rootProject.arrowVersion
+    // provides an Optional implementation
 
     // Dagger 2
     implementation 'com.google.dagger:dagger:' + rootProject.daggerVersion

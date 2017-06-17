@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group
+        android:id="@+id/nav_group_categories"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_create_category"
+            android:icon="@drawable/ic_create_new_folder_black_24dp"
+            android:title="@string/nav_title_create_category"/>
+    </group>
+
+    <group
+        android:id="@+id/nav_group_misc"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_share"
+            android:icon="@drawable/ic_share_black_24dp"
+            android:title="@string/nav_title_share"/>
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_settings_black_24dp"
+            android:title="@string/nav_title_settings"/>
+    </group>
+
+</menu>

@@ -1,6 +1,7 @@
 package io.explod.arch.data
 
 import android.arch.persistence.room.*
+import android.arch.persistence.room.ForeignKey.CASCADE
 import android.net.Uri
 import android.support.annotation.IntRange
 import java.util.*
@@ -28,7 +29,7 @@ class Category {
 
 @Entity(tableName = "items",
         foreignKeys = arrayOf(
-                ForeignKey(entity = Category::class, parentColumns = arrayOf("id"), childColumns = arrayOf("category_id"))
+                ForeignKey(entity = Category::class, parentColumns = arrayOf("id"), childColumns = arrayOf("category_id"), onDelete = CASCADE)
         ),
         indices = arrayOf(Index("category_id"))
 )
