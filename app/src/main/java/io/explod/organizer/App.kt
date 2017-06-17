@@ -7,7 +7,6 @@ import io.explod.organizer.injection.DaggerObjectComponent
 import io.explod.organizer.injection.ObjectComponent
 import io.explod.organizer.injection.ObjectGraph
 import io.explod.organizer.injection.ObjectGraph.injector
-import io.explod.organizer.service.tracking.LevelV
 import io.explod.organizer.service.tracking.Tracker
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -24,24 +23,18 @@ abstract class App : Application() {
         super.onCreate()
         app = this
 
-        // Prepare Dagger 2
+        // Prepare Dagger
         ObjectGraph.setObjectComponent(buildObjectComponent())
 
         // Initialize Tracking
         tracker = TrackerInitializer().initialize(this)
-
         tracker.event("appStartup")
-        tracker.log(LevelV, TAG, "testing")
-        tracker.log(LevelV, TAG, "testing exception", Exception())
-        tracker.recordException(LevelV, Exception("testing"))
-
     }
 
     /**
      * Create the App instances ObjectComponent to be used for injection
      */
     abstract fun buildObjectComponent(): ObjectComponent
-
 
 }
 
