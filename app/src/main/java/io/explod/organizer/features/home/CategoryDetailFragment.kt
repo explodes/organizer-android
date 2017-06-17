@@ -2,9 +2,11 @@ package io.explod.organizer.features.home
 
 import android.arch.lifecycle.Observer
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,9 +16,12 @@ import io.explod.organizer.App.Companion.tracker
 import io.explod.organizer.R
 import io.explod.organizer.extensions.*
 import io.explod.organizer.features.common.BaseFragment
+import io.explod.organizer.features.common.EditTextDialog
 import io.explod.organizer.features.common.ListAdapter
 import io.explod.organizer.features.common.ListDiffCallback
 import io.explod.organizer.service.database.CategoryStats
+import io.explod.organizer.service.tracking.LevelW
+import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.android.synthetic.main.fragment_category_detail.*
 
 class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
@@ -38,6 +43,8 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
 
     val categoryItemsAdapter by lazy(LazyThreadSafetyMode.NONE) { CategoryItemAdapter() }
 
+    var stats: CategoryStats? = null
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_category_detail, container, false)
     }
@@ -47,7 +54,7 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
 
         fab_create_item.setOnClickListener {
             tracker.event("categoryDetailFabCreateItemClick", mapOf("numItems" to categoryItemsAdapter.itemCount - 1))
-            onCreateItemClick()
+            showCreateItemDialog()
         }
 
         categoryItemsAdapter.listener = this
@@ -64,18 +71,39 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
     }
 
     override fun onItemClick(item: Item) {
+        tracker.event("categoryDetailItemClick", mapOf("name" to item.name))
         // todo(evan): show item details
         mainActivity?.showSnackbar("todo: show item details")
-    }
-
-    fun onCreateItemClick() {
-        // todo(evan): create item on click
-        mainActivity?.showSnackbar("todo: create item")
     }
 
     fun onCategoryItems(items: List<CategoryItem>?) {
         if (recycler_items == null) return
         categoryItemsAdapter.replaceItems(items)
+        if (items != null && items.isNotEmpty()) {
+            stats = items[0].stats
+        }
+    }
+
+    fun showCreateItemDialog() {
+        val context = this.context ?: return
+        val stats = this.stats ?: return
+        val categoryDetailModel = this.categoryDetailModel
+        EditTextDialog(context)
+                .setTitle(R.string.home_dialog_title_create_category)
+                .setOnTextChangedListener(object : EditTextDialog.OnTextChangedListener {
+                    override fun onTextChanged(newText: String) {
+                        if (!TextUtils.isEmpty(newText)) {
+                            categoryDetailModel.createItem(stats.category.id, newText)
+                                    .compose(bindToLifecycle())
+                                    .subscribeBy(onError = { tracker.recordException(LevelW, Exception("unable to create item", it)) })
+                        } else {
+                            mainActivity?.showSnackbar(R.string.category_detail_item_name_empty, length = Snackbar.LENGTH_LONG, actionRes = R.string.category_detail_item_empty_retry_action, action = {
+                                showCreateItemDialog()
+                            })
+                        }
+                    }
+                })
+                .show()
     }
 
 }

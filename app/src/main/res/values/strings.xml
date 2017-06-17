@@ -7,7 +7,7 @@
     <!-- Feature: Home -->
     <string name="home_dialog_title_create_category">Create category</string>
     <string name="home_error_category_name_empty">Categories must have a title</string>
-    <string name="home_error_category_name_empty_retry_action">Try again</string>
+    <string name="home_error_category_name_empty_retry_action">Retry</string>
 
     <!-- Feature: Nav -->
     <string name="nav_title_create_category">Create category</string>
@@ -26,6 +26,9 @@
 
     <!-- Feature: CategoryDetail -->
     <string name="category_detail_content_fab">Create item</string>
+    <string name="category_detail_create_item">Create item</string>
+    <string name="category_detail_item_name_empty">Categories must have a title</string>
+    <string name="category_detail_item_empty_retry_action">Retry</string>
     <plurals name="category_detail_rating">
         <item quantity="one">1 star</item>
         <item quantity="other">%d stars</item>
