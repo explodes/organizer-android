@@ -89,7 +89,7 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
         val stats = this.stats ?: return
         val categoryDetailModel = this.categoryDetailModel
         EditTextDialog(context)
-                .setTitle(R.string.home_dialog_title_create_category)
+                .setTitle(R.string.category_detail_create_item)
                 .setOnTextChangedListener(object : EditTextDialog.OnTextChangedListener {
                     override fun onTextChanged(newText: String) {
                         if (!TextUtils.isEmpty(newText)) {
@@ -118,6 +118,9 @@ class CategoryItemAdapter : ListAdapter<CategoryItem, CategoryItemAdapter.Catego
         private val TYPE_INVALID = -1
         private val TYPE_CATEGORY = 0
         private val TYPE_ITEM = 1
+
+        private val ID_MASK_CATEGORY = 0x7000000000000000L
+        private val ID_MASK_ITEM = 0x0700000000000000L
     }
 
     var listener: Listener? = null
@@ -131,8 +134,12 @@ class CategoryItemAdapter : ListAdapter<CategoryItem, CategoryItemAdapter.Catego
     }
 
     override fun getItemId(position: Int): Long {
-        val ci = this[position] ?: return 0
-        return ci.item?.id ?: ci.stats.category.id
+        val ci = this[position] ?: return 0L
+        return when (getItemViewType(position)) {
+            TYPE_CATEGORY -> ci.stats.category.id.or(ID_MASK_CATEGORY)
+            TYPE_ITEM -> (ci.item?.id ?: 0L).or(ID_MASK_ITEM)
+            else -> 0L
+        }
     }
 
     override fun getItemViewType(position: Int): Int {
