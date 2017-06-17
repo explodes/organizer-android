@@ -11,7 +11,6 @@ import io.explod.organizer.injection.AppModule
 import meta.injection.DaggerTestObjectComponent
 import meta.injection.TestObjectComponent
 import meta.injection.TestObjectGraph.testInjector
-import org.junit.After
 import org.junit.Before
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -99,8 +98,11 @@ abstract class BaseRoboTest {
         }
     }
 
+    /**
+     * Direct database access for tests
+     */
     @Inject
-    lateinit var db: AppDatabase
+    lateinit var db: AppDatabase // Robolectric will automatically close the database
 
     @Before
     fun injectDependencies() {
@@ -115,10 +117,6 @@ abstract class BaseRoboTest {
         System.setProperty("dexmaker.dexcache", RuntimeEnvironment.application.cacheDir.path)
     }
 
-    @After
-    fun closeDatabase() {
-        db.close()
-    }
 }
 
 class TestApp : App() {

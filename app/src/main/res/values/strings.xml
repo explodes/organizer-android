@@ -24,4 +24,11 @@
         <item quantity="other">%d items</item>
     </plurals>
 
+    <!-- Feature: CategoryDetail -->
+    <string name="category_detail_content_fab">Create item</string>
+    <plurals name="category_detail_rating">
+        <item quantity="one">1 star</item>
+        <item quantity="other">%d stars</item>
+    </plurals>
+
 </resources>

@@ -25,15 +25,11 @@ class AppRepoImpl : AppRepo {
         injector.inject(this)
     }
 
-    override fun getAllCategories(): LiveData<List<Category>> {
-        return db.categories().loadAll()
-    }
-
-    override fun getAllCategoriesWithStats(): LiveData<List<CategoryStats>> {
+    override fun getAllCategories(): LiveData<List<CategoryStats>> {
         return db.categories().loadAllWithStats()
     }
 
-    override fun getCategoryById(categoryId: Long): Category? {
+    override fun getCategoryById(categoryId: Long): LiveData<CategoryStats> {
         return db.categories().byId(categoryId)
     }
 
@@ -55,7 +51,7 @@ class AppRepoImpl : AppRepo {
         return db.items().byCategory(categoryId)
     }
 
-    override fun getItemById(itemId: Long): Item? {
+    override fun getItemById(itemId: Long): LiveData<Item> {
         return db.items().byId(itemId)
     }
 

@@ -17,6 +17,7 @@ import io.explod.organizer.extensions.getModel
 import io.explod.organizer.extensions.getResourceNameOrUnknown
 import io.explod.organizer.extensions.showSnackbar
 import io.explod.organizer.features.common.BaseActivity
+import io.explod.organizer.features.common.BaseFragment
 import io.explod.organizer.features.common.EditTextDialog
 import io.explod.organizer.injection.ObjectGraph.injector
 import io.explod.organizer.service.database.CategoryStats
@@ -40,7 +41,7 @@ class MainActivity : BaseActivity() {
     @Inject
     lateinit var tracker: Tracker
 
-    val categoryModel by getModel(CategoryViewModel::class)
+    val categoryModel by getModel(CategoryListViewModel::class)
 
     val navManager = NavViewManager()
 
@@ -72,7 +73,7 @@ class MainActivity : BaseActivity() {
                     .commit()
         }
 
-        categoryModel.categoriesWithStats.observe(this, Observer<List<CategoryStats>> { onCategories(it) })
+        categoryModel.categories.observe(this, Observer<List<CategoryStats>> { onCategories(it) })
     }
 
     fun onCategories(categories: List<CategoryStats>?) {
@@ -125,6 +126,13 @@ class MainActivity : BaseActivity() {
                 .show()
     }
 
+    fun pushFragment(frag: BaseFragment) {
+        supportFragmentManager.beginTransaction()
+                .add(R.id.container, frag)
+                .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                .addToBackStack(null)
+                .commit()
+    }
 
     inner class NavViewManager : NavigationView.OnNavigationItemSelectedListener {
         override fun onNavigationItemSelected(item: MenuItem): Boolean {

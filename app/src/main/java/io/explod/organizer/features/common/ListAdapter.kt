@@ -8,7 +8,7 @@ abstract class ListAdapter<T, VH : RecyclerView.ViewHolder> : RecyclerView.Adapt
 
     var items: List<T>? = null
 
-    abstract fun createDiffCallback(old: List<T>?, new: List<T>?): ListDiffCallback<T>
+    abstract fun createDiffCallback(old: List<T>?, new: List<T>?): DiffUtil.Callback
 
     fun replaceItems(items: List<T>?) {
         val old = this.items

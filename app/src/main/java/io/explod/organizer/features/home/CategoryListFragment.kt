@@ -9,7 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import io.explod.organizer.R
-import io.explod.organizer.extensions.*
+import io.explod.organizer.extensions.find
+import io.explod.organizer.extensions.getModel
+import io.explod.organizer.extensions.mainActivity
+import io.explod.organizer.extensions.toggleVisibility
 import io.explod.organizer.features.common.BaseFragment
 import io.explod.organizer.features.common.ListAdapter
 import io.explod.organizer.features.common.ListDiffCallback
@@ -35,7 +38,7 @@ class CategoryListFragment : BaseFragment(), CategoryAdapter.Listener {
     @Inject
     lateinit var tracker: Tracker
 
-    val categoriesModel by getModel(CategoryViewModel::class)
+    val categoriesModel by getModel(CategoryListViewModel::class)
     val categoriesAdapter by lazy(LazyThreadSafetyMode.NONE) { CategoryAdapter() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,13 +66,12 @@ class CategoryListFragment : BaseFragment(), CategoryAdapter.Listener {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        categoriesModel.categoriesWithStats.observe(this, Observer<List<CategoryStats>> { onCategories(it) })
+        categoriesModel.categories.observe(this, Observer<List<CategoryStats>> { onCategories(it) })
     }
 
     override fun onCategoryClick(category: CategoryStats) {
-        // todo(evan): handle click
         tracker.event("categoryListCategoryClick", mapOf("name" to category.category.name))
-        mainActivity?.showSnackbar("TODO: handle click")
+        mainActivity?.pushFragment(CategoryDetailFragment.new(category.category.id))
     }
 
     fun onCategories(categories: List<CategoryStats>?) {
@@ -113,11 +115,16 @@ class CategoryAdapter : ListAdapter<CategoryStats, CategoryAdapter.CategoryViewH
         return CategoryViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: CategoryViewHolder?, position: Int) {
+        if (holder == null) return
         val category = this[position] ?: return
 
         holder.name.text = category.category.name
-        holder.itemCount.text = holder.itemView.context?.resources?.getQuantityString(R.plurals.category_list_num_items, category.numItems, category.numItems) ?: ""
+        val res = holder.itemView.context?.resources
+        holder.itemCount.text = when {
+            res == null || category.numItems == 0 -> ""
+            else -> res.getQuantityString(R.plurals.category_list_num_items, category.numItems, category.numItems)
+        }
     }
 
     fun notifyClick(position: Int) {

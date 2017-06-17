@@ -7,12 +7,12 @@ import io.explod.organizer.service.repo.AsyncAppRepo
 import io.reactivex.Single
 import javax.inject.Inject
 
-class CategoryViewModel : ViewModel() {
+class CategoryListViewModel : ViewModel() {
 
     @Inject
     lateinit var repo: AsyncAppRepo
 
-    val categoriesWithStats by lazy(LazyThreadSafetyMode.NONE) { repo.getAllCategoriesWithStats() }
+    val categories by lazy(LazyThreadSafetyMode.NONE) { repo.getAllCategories() }
 
     init {
         inject()
@@ -23,6 +23,5 @@ class CategoryViewModel : ViewModel() {
     }
 
     fun createCategory(name: String): Single<Category> = repo.createCategory(name)
-
 
 }

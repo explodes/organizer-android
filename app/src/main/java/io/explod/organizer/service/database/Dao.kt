@@ -18,6 +18,14 @@ interface CategoryDao {
                 "LEFT OUTER JOIN items ON categories.id = items.category_id " +
                 "GROUP BY categories.id, categories.name, categories.created_date " +
                 "ORDER BY categories.created_date DESC"
+        private const val QUERY_CATEGORY_BY_ID = "SELECT categories.*, " +
+                "COUNT(items.id) AS num_items, " +
+                "SUM(CASE WHEN items.rating IS NULL OR items.rating NOT BETWEEN 1 AND 5 THEN 0 ELSE 1 END) AS num_rated, " +
+                "SUM(CASE WHEN items.rating IS NULL OR items.rating NOT BETWEEN 1 AND 5 THEN 0 ELSE items.rating END) AS total_rating  " +
+                "FROM categories " +
+                "LEFT OUTER JOIN items ON categories.id = items.category_id " +
+                "WHERE categories.id = :arg0 " +
+                "GROUP BY categories.id, categories.name, categories.created_date"
     }
 
     @Query(QUERY_LOAD_ALL_DESCENDING_BY_DATE)
@@ -34,8 +42,12 @@ interface CategoryDao {
     @Query(QUERY_CATEGORY_STATS)
     fun loadAllWithStatsAsList(): List<CategoryStats>
 
-    @Query("SELECT * FROM categories WHERE id = :arg0")
-    fun byId(id: Long): Category?
+    @Query(QUERY_CATEGORY_BY_ID)
+    fun byId(id: Long): LiveData<CategoryStats>
+
+    @VisibleForTesting
+    @Query(QUERY_CATEGORY_BY_ID)
+    fun byIdDirect(id: Long): CategoryStats
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(category: Category): Long
@@ -75,7 +87,7 @@ interface ItemDao {
     fun byCategoryAsList(categoryId: Long): List<Item>
 
     @Query("SELECT * FROM items WHERE id = :arg0")
-    fun byId(id: Long): Item?
+    fun byId(id: Long): LiveData<Item>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(item: Item): Long

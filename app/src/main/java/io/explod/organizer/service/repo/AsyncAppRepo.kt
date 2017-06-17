@@ -2,7 +2,6 @@ package io.explod.organizer.service.repo
 
 import android.arch.lifecycle.LiveData
 import android.net.Uri
-import com.fernandocejas.arrow.optional.Optional
 import io.explod.arch.data.Category
 import io.explod.arch.data.Item
 import io.explod.organizer.injection.ObjectGraph.injector
@@ -37,9 +36,8 @@ class AsyncAppRepo {
 
     /* Categories */
 
-    fun getAllCategories(): LiveData<List<Category>> = synchronously.getAllCategories()
-    fun getAllCategoriesWithStats(): LiveData<List<CategoryStats>> = synchronously.getAllCategoriesWithStats()
-    fun getCategoryById(categoryId: Long): Single<Optional<Category>> = asSingle { Optional.fromNullable(synchronously.getCategoryById(categoryId)) }
+    fun getAllCategories(): LiveData<List<CategoryStats>> = synchronously.getAllCategories()
+    fun getCategoryById(categoryId: Long): LiveData<CategoryStats> = synchronously.getCategoryById(categoryId)
     fun createCategory(name: String): Single<Category> = asSingle { synchronously.createCategory(name) }
     fun updateCategory(category: Category) = asCompletable { synchronously.updateCategory(category) }
     fun deleteCategory(categoryId: Long) = asCompletable { synchronously.deleteCategory(categoryId) }
@@ -47,7 +45,7 @@ class AsyncAppRepo {
     /* Items */
 
     fun getAllItemsForCategory(categoryId: Long): LiveData<List<Item>> = synchronously.getAllItemsForCategory(categoryId)
-    fun getItemById(itemId: Long): Single<Optional<Item>> = asSingle { Optional.fromNullable(synchronously.getItemById(itemId)) }
+    fun getItemById(itemId: Long): LiveData<Item> = synchronously.getItemById(itemId)
     fun createItem(categoryId: Long, name: String, rating: Int = -1, photo: Uri? = null): Single<Item> = asSingle { synchronously.createItem(categoryId = categoryId, name = name, rating = rating, photo = photo) }
     fun updateItem(item: Item) = asCompletable { synchronously.updateItem(item) }
     fun deleteItem(itemId: Long) = asCompletable { synchronously.deleteItem(itemId) }
