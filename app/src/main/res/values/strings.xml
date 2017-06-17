@@ -5,11 +5,18 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <!-- Feature: Home -->
-    <string name="home_content_warning">Warning</string>
-    <string name="home_categories_empty">You have no categories!\nAdd one with the button on the bottom-right of your screen.</string>
+    <string name="home_dialog_title_create_category">Create category</string>
+    <string name="home_error_category_name_empty">Categories must have a title</string>
+    <string name="home_error_category_name_empty_retry_action">Try again</string>
 
-    <!-- Nav -->
+    <!-- Feature: Nav -->
     <string name="nav_title_create_category">Create category</string>
     <string name="nav_title_share">Share</string>
     <string name="nav_title_settings">Settings</string>
+
+    <!-- Feature: CategoryList -->
+    <string name="category_list_content_warning">Warning</string>
+    <string name="category_list_empty">You have no categories!\nThe button on the bottom-right of your screen will help with that.</string>
+    <string name="category_list_content_fab">Create category</string>
+
 </resources>

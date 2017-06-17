@@ -1,10 +1,10 @@
-package io.explod.organizer.features.base
+package io.explod.organizer.features.common
 
 import android.arch.lifecycle.LifecycleRegistry
 import android.arch.lifecycle.LifecycleRegistryOwner
-import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
+import com.trello.rxlifecycle2.components.support.RxFragment
 
-abstract class BaseActivity : RxAppCompatActivity(), LifecycleRegistryOwner {
+abstract class BaseFragment : RxFragment(), LifecycleRegistryOwner {
 
     @Suppress("LeakingThis")
     private val registry = LifecycleRegistry(this)

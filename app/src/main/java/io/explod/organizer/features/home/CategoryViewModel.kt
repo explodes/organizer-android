@@ -1,8 +1,10 @@
 package io.explod.organizer.features.home
 
 import android.arch.lifecycle.ViewModel
+import io.explod.arch.data.Category
 import io.explod.organizer.injection.ObjectGraph.injector
 import io.explod.organizer.service.repo.AsyncAppRepo
+import io.reactivex.Single
 import javax.inject.Inject
 
 class CategoryViewModel : ViewModel() {
@@ -19,6 +21,8 @@ class CategoryViewModel : ViewModel() {
     fun inject() {
         injector.inject(this)
     }
+
+    fun createCategory(name: String): Single<Category> = repo.createCategory(name)
 
 
 }

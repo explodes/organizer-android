@@ -5,19 +5,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/backgroundColor"
     tools:context=".features.home.MainActivity">
 
-    <ViewStub
-        android:id="@+id/stub_categories_empty"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout="@layout/stub_category_list_empty"/>
-
-    <ViewStub
-        android:id="@+id/stub_categories_full"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout="@layout/stub_category_list"/>
+    <include layout="@layout/stub_category_list_empty"/>
+    <include layout="@layout/stub_category_list"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_create_category"
@@ -25,6 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
+        android:contentDescription="@string/category_list_content_fab"
         android:tint="@android:color/white"
         app:srcCompat="@drawable/ic_add_black_24dp"/>
 

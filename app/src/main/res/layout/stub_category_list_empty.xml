@@ -1,29 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
+    android:id="@+id/stub_categories_empty"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".features.home.MainActivity">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <TextView
+        android:layout_width="@dimen/category_list_empty_message_width"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/home_content_warning"
-            android:tint="@color/colorAccent"
-            app:srcCompat="@drawable/ic_warning_black_96dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/home_categories_empty"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
-    </LinearLayout>
+        android:layout_centerInParent="true"
+        android:drawableTint="@color/colorAccent"
+        android:drawableTop="@drawable/ic_warning_black_96dp"
+        android:text="@string/category_list_empty"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
 
 </RelativeLayout>

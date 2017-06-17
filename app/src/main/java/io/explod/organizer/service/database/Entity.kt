@@ -25,6 +25,11 @@ class Category {
     @ColumnInfo(name = "created_date")
     var createdDate = Date()
 
+    override fun toString(): String {
+        return "Category(id=$id, name='$name', createdDate=$createdDate)"
+    }
+
+
 }
 
 @Entity(tableName = "items",
@@ -63,5 +68,9 @@ class Item {
 
     @ColumnInfo(name = "created_date")
     var createdDate = Date()
+
+    override fun toString(): String {
+        return "Item(id=$id, categoryId=$categoryId, name='$name', rating=$rating, photoUri='$photoUri', createdDate=$createdDate)"
+    }
 
 }

@@ -1,75 +1,89 @@
 package io.explod.organizer.features.home
 
 import android.arch.lifecycle.Observer
+import android.content.res.Resources
 import android.os.Bundle
 import android.support.annotation.IdRes
 import android.support.design.widget.NavigationView
+import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
+import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import io.explod.arch.data.Category
 import io.explod.organizer.R
 import io.explod.organizer.extensions.getModel
-import io.explod.organizer.extensions.hide
-import io.explod.organizer.extensions.show
-import io.explod.organizer.features.base.BaseActivity
+import io.explod.organizer.extensions.showSnackbar
+import io.explod.organizer.features.common.BaseActivity
+import io.explod.organizer.features.common.EditTextDialog
+import io.explod.organizer.injection.ObjectGraph.injector
+import io.explod.organizer.service.tracking.LevelW
+import io.explod.organizer.service.tracking.Tracker
+import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.android.synthetic.main.activity_main.*
+import javax.inject.Inject
 
 /**
- * MainActivity starts by showing (very, very briefly) a ProgressBar in the middle of the screen.
- *
- * When the [CategoryViewModel] has loaded its first set of data, the CategoryListFragment is
- * brought into view.
+ * MainActivity starts by showing showing the category list.
  *
  * MainActivity is also responsible for building and controlling the actions in the NavDrawer.
  */
 class MainActivity : BaseActivity() {
 
-    val categoriesModel by getModel(CategoryViewModel::class)
+    companion object {
+        private val FRAGTAG_CATEGORY_LIST = "categoryList"
+    }
+
+    @Inject
+    lateinit var tracker: Tracker
+
+    val categoryModel by getModel(CategoryViewModel::class)
 
     val navManager = NavViewManager()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        injector.inject(this)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        val toggle = ActionBarDrawerToggle(this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        val toggle = object : ActionBarDrawerToggle(this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+            override fun onDrawerOpened(drawerView: View?) {
+                super.onDrawerOpened(drawerView)
+                tracker.event("navDrawerOpened")
+            }
+
+            override fun onDrawerClosed(drawerView: View?) {
+                super.onDrawerClosed(drawerView)
+                tracker.event("navDrawerClosed")
+            }
+        }
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
 
         nav_view.setNavigationItemSelectedListener(navManager)
 
         if (savedInstanceState == null) {
-            showProgressBar()
-            categoriesModel.categories.observe(this, Observer<List<Category>> { onInitialCategories(it) })
+            supportFragmentManager.beginTransaction()
+                    .replace(R.id.container, CategoryListFragment.new(), FRAGTAG_CATEGORY_LIST)
+                    .commit()
         }
+
+        categoryModel.categories.observe(this, Observer<List<Category>> { onCategories(it) })
     }
 
-    fun showProgressBar() {
-        progress_loading.show()
-        container.hide()
-    }
-
-    fun showContent() {
-        progress_loading.hide()
-        container.show()
-    }
-
-    fun onInitialCategories(categories: List<Category>?) {
-        showContent()
+    fun onCategories(categories: List<Category>?) {
         navManager.rebuildMenuCategories(categories)
-        supportFragmentManager.beginTransaction()
-                .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right, android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-                .add(R.id.container, CategoryListFragment.new(), null)
-                .commit()
     }
 
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
+            tracker.event("backPressWithDrawerOpen")
             drawer_layout.closeDrawer(GravityCompat.START)
         } else {
+            tracker.event("backPressWithDrawerClosed")
             super.onBackPressed()
         }
     }
@@ -90,18 +104,50 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    fun showCreateCategoryDialog() {
+        val categoryModel = this.categoryModel
+        EditTextDialog(this)
+                .setTitle(R.string.home_dialog_title_create_category)
+                .setOnTextChangedListener(object : EditTextDialog.OnTextChangedListener {
+                    override fun onTextChanged(newText: String) {
+                        if (!TextUtils.isEmpty(newText)) {
+                            categoryModel.createCategory(newText)
+                                    .compose(bindToLifecycle())
+                                    .subscribeBy(onError = { tracker.recordException(LevelW, Exception("unable to create category", it)) })
+                        } else {
+                            showSnackbar(R.string.home_error_category_name_empty, length = Snackbar.LENGTH_LONG, actionRes = R.string.home_error_category_name_empty_retry_action, action = {
+                                showCreateCategoryDialog()
+                            })
+                        }
+                    }
+                })
+                .show()
+    }
+
+    fun trackWithResourceName(event: String, @IdRes res: Int) {
+        var idName: String
+        try {
+            idName = resources.getResourceName(res)
+        } catch (ex: Resources.NotFoundException) {
+            idName = "unknown-0x${Integer.toHexString(res)}"
+        }
+        tracker.event(event, mapOf("name" to idName))
+    }
 
     inner class NavViewManager : NavigationView.OnNavigationItemSelectedListener {
         override fun onNavigationItemSelected(item: MenuItem): Boolean {
-            // Handle navigation view item clicks here.
             handleStandardMenuItem(item.itemId)
             drawer_layout.closeDrawer(GravityCompat.START)
             return true
         }
 
         fun handleStandardMenuItem(@IdRes itemId: Int) {
+
+            trackWithResourceName("navStandardItemClick", itemId)
+
             when (itemId) {
                 R.id.nav_create_category -> {
+                    showCreateCategoryDialog()
                 }
                 R.id.nav_share -> {
                 }
@@ -114,4 +160,5 @@ class MainActivity : BaseActivity() {
             // todo(evan): re-create the category menu contents
         }
     }
+
 }
