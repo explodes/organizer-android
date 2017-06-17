@@ -2,6 +2,7 @@ package io.explod.organizer.injection
 
 import dagger.Component
 import io.explod.organizer.TrackerInitializer
+import io.explod.organizer.features.home.CategoryViewModel
 import io.explod.organizer.features.home.MainActivity
 import io.explod.organizer.service.repo.AppRepoImpl
 import io.explod.organizer.service.repo.AsyncAppRepo
@@ -48,4 +49,5 @@ interface Injector {
     fun inject(target: TrackerInitializer)
     fun inject(target: AppRepoImpl)
     fun inject(target: AsyncAppRepo)
+    fun inject(target: CategoryViewModel)
 }

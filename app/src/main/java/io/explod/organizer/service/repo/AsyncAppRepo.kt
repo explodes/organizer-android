@@ -13,7 +13,7 @@ import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 /**
- * Rx wrapper around [AppRepo]'s otherwise synchronous functions.
+ * Rx wrapper around [AppRepo]'s otherwise synchronously functions.
  *
  * Uses the IO scheduler
  */
@@ -21,7 +21,7 @@ import javax.inject.Inject
 class AsyncAppRepo {
 
     @Inject
-    lateinit var synchronous: AppRepo
+    lateinit var synchronously: AppRepo
 
     init {
         inject()
@@ -36,18 +36,18 @@ class AsyncAppRepo {
 
     /* Categories */
 
-    fun getAllCategories(): LiveData<List<Category>> = synchronous.getAllCategories()
-    fun getCategoryById(categoryId: Long): Single<Optional<Category>> = asSingle { Optional.fromNullable(synchronous.getCategoryById(categoryId)) }
-    fun createCategory(name: String): Single<Category> = asSingle { synchronous.createCategory(name) }
-    fun updateCategory(category: Category) = asCompletable { synchronous.updateCategory(category) }
-    fun deleteCategory(categoryId: Long) = asCompletable { synchronous.deleteCategory(categoryId) }
+    fun getAllCategories(): LiveData<List<Category>> = synchronously.getAllCategories()
+    fun getCategoryById(categoryId: Long): Single<Optional<Category>> = asSingle { Optional.fromNullable(synchronously.getCategoryById(categoryId)) }
+    fun createCategory(name: String): Single<Category> = asSingle { synchronously.createCategory(name) }
+    fun updateCategory(category: Category) = asCompletable { synchronously.updateCategory(category) }
+    fun deleteCategory(categoryId: Long) = asCompletable { synchronously.deleteCategory(categoryId) }
 
     /* Items */
 
-    fun getAllItemsForCategory(categoryId: Long): LiveData<List<Item>> = synchronous.getAllItemsForCategory(categoryId)
-    fun getItemById(itemId: Long): Single<Optional<Item>> = asSingle { Optional.fromNullable(synchronous.getItemById(itemId)) }
-    fun createItem(categoryId: Long, name: String, rating: Int = -1, photo: Uri? = null): Single<Item> = asSingle { synchronous.createItem(categoryId = categoryId, name = name, rating = rating, photo = photo) }
-    fun updateItem(item: Item) = asCompletable { synchronous.updateItem(item) }
-    fun deleteItem(itemId: Long) = asCompletable { synchronous.deleteItem(itemId) }
+    fun getAllItemsForCategory(categoryId: Long): LiveData<List<Item>> = synchronously.getAllItemsForCategory(categoryId)
+    fun getItemById(itemId: Long): Single<Optional<Item>> = asSingle { Optional.fromNullable(synchronously.getItemById(itemId)) }
+    fun createItem(categoryId: Long, name: String, rating: Int = -1, photo: Uri? = null): Single<Item> = asSingle { synchronously.createItem(categoryId = categoryId, name = name, rating = rating, photo = photo) }
+    fun updateItem(item: Item) = asCompletable { synchronously.updateItem(item) }
+    fun deleteItem(itemId: Long) = asCompletable { synchronously.deleteItem(itemId) }
 
 }
