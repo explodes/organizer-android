@@ -14,7 +14,7 @@ class TestImageModule {
     @Singleton
     internal fun providesImageLoader(): ImageLoader {
         return object : ImageLoader {
-            override fun loadPath(path: String, view: LoadingImageView) {
+            override fun loadPath(uri: String, view: LoadingImageView) {
                 view.showError()
             }
         }

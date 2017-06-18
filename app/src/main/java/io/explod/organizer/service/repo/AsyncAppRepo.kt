@@ -14,7 +14,7 @@ import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 /**
- * Rx wrapper around [AppRepo]'s otherwise synchronously functions.
+ * Rx wrapper around [AppRepo]'s otherwise synchronous functions.
  *
  * Uses the IO scheduler
  */

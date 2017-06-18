@@ -20,6 +20,10 @@ import java.io.InputStream
 import java.io.OutputStream
 import javax.inject.Inject
 
+/**
+ * AppRepoImpl is an implementation of AppRepo that performs coordination between the internet,
+ * photos on disk, and the AppDatabase
+ */
 class AppRepoImpl : AppRepo {
 
     companion object {
@@ -107,6 +111,9 @@ class AppRepoImpl : AppRepo {
         updateItem(item)
     }
 
+    /**
+     * Helper function to delete an Item's photo if it is a "file://" type that exists
+     */
     private fun Item.deletePhotoIfExists() {
         if (hasPhoto() && photoUri.startsWith(SCHEME_FILE)) {
             val file = File(photoUri.substring(SCHEME_FILE.length))
@@ -119,7 +126,6 @@ class AppRepoImpl : AppRepo {
     }
 
 }
-
 
 @Throws(IOException::class)
 private fun copyUriToFile(context: Context, input: Uri, output: File) {
@@ -135,7 +141,6 @@ private fun copyUriToFile(context: Context, input: Uri, output: File) {
     }
 }
 
-
 @Throws(IOException::class)
 private fun copyStream(input: InputStream, output: OutputStream) {
     val buf = ByteArray(32768) // 32k
@@ -147,7 +152,6 @@ private fun copyStream(input: InputStream, output: OutputStream) {
     }
     output.flush()
 }
-
 
 @Throws(IOException::class)
 private fun convertToWebp(input: File, output: File) {

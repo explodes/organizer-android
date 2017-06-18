@@ -14,6 +14,9 @@ import javax.inject.Inject
 abstract class App : Application() {
 
     companion object {
+        /**
+         * Global App instance
+         */
         lateinit var app: App
 
         private lateinit var tracker: Tracker
@@ -38,6 +41,9 @@ abstract class App : Application() {
 
 }
 
+/**
+ * The "real" (non-testing) implementation of our App
+ */
 class AppImpl : App() {
 
     override fun buildObjectComponent(): ObjectComponent {
@@ -48,7 +54,10 @@ class AppImpl : App() {
 
 }
 
-class TrackerInitializer {
+/**
+ * Helper class that initializes the Tracker
+ */
+private class TrackerInitializer {
 
     companion object {
         private val TAG = TrackerInitializer::class.java.simpleName

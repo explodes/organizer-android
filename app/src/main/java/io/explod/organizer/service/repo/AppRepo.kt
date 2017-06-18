@@ -8,6 +8,12 @@ import io.explod.arch.data.Item
 import io.explod.organizer.service.database.CategoryStats
 import java.io.IOException
 
+/**
+ * AppRepo is the interface between our Application and its underlying data.
+ *
+ * This allows coordination between multiple data source (such as the database and photos on disk)
+ * to keep things in a consistent state.
+ */
 interface AppRepo {
 
     /* Categories */
