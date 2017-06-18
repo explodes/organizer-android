@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Organizer</string>
+    <string name="app_contact" translatable="false">evan.explodes@gmail.com</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -39,6 +40,7 @@
     <!-- Feature: ItemDetail -->
     <string name="item_detail_content_image">Custom item image</string>
     <string name="item_detail_item_name_hint">Item name</string>
+    <string name="item_detail_item_description_hint">Description</string>
     <string name="item_detail_item_missing_name">Name cannot be empty</string>
     <string name="item_detail_delete_item">Delete item</string>
     <string name="item_detail_delete_item_confirmation">Deleting this item is permanent. Are you sure you want to continue?</string>

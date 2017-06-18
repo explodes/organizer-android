@@ -3,17 +3,14 @@ package io.explod.organizer.features.home
 import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.annotation.StringRes
-import android.support.v4.content.ContextCompat
-import android.support.v4.content.res.ResourcesCompat
-import android.support.v4.graphics.drawable.DrawableCompat
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
 import android.widget.ImageView
 import android.widget.RatingBar
+import android.widget.TextView
 import io.explod.arch.data.Item
 import io.explod.arch.data.hasPhoto
 import io.explod.organizer.R
@@ -31,7 +28,7 @@ import io.explod.organizer.service.tracking.LoggedException
 import io.explod.organizer.service.tracking.Tracker
 import io.reactivex.BackpressureStrategy
 import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.fragment_item_detail.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -65,13 +62,13 @@ class ItemDetailFragment : BaseFragment() {
 
     val itemDetailModel by getModelWithFactory(ItemDetailViewModel::class, { ItemDetailViewModel.Factory(args.getLong(ARG_ITEM_ID)) })
 
-    var nameChangeTrackerSubject = BehaviorSubject.create<String>()
+    var nameChangeTracker = EditingTextWatcher()
+
+    var descriptionChangeTracker = EditingTextWatcher()
 
     var item: Item? = null
 
     var loadedPhotoUri: String? = null
-
-    var isEditingName = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,19 +87,8 @@ class ItemDetailFragment : BaseFragment() {
             if (fromUser) onRating(rating)
         }
 
-        text_name.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                onNameChanged(s?.toString() ?: "")
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                onNameChanging()
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            }
-
-        })
+        text_name.addTextChangedListener(nameChangeTracker)
+        text_description.addTextChangedListener(descriptionChangeTracker)
 
         image_photo.setOnClickListener {
             selectPhotoForItem()
@@ -118,17 +104,12 @@ class ItemDetailFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        nameChangeTrackerSubject
-                .compose(bindToLifecycle())
-                .toFlowable(BackpressureStrategy.LATEST)
-                .debounce(DEBOUNCE_NAME_CHANGE_MILLIS, TimeUnit.MILLISECONDS)
-                .subscribeBy(onNext = {
-                    if (it.isBlank()) {
-                        tracker.event("itemDetailAttemptSaveBlankName")
-                    } else {
-                        tracker.event("itemDetailChangeName", mapOf("name" to it))
-                    }
-                })
+        nameChangeTracker.observeTextChange("itemDetailChangeName") {
+            onNameChanged(it)
+        }
+        descriptionChangeTracker.observeTextChange("itemDetailChangeDescription") {
+            onDescriptionChanged(it)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -160,6 +141,7 @@ class ItemDetailFragment : BaseFragment() {
         if (!ok || intent == null || intent.data == null) {
             snackbarWithSelectPhotoRetry(R.string.item_detail_select_image_cancelled)
         } else {
+            image_photo?.showLoading()
             itemDetailModel.downloadPhotoForItem(context, item, intent.data)
                     .compose(bindToLifecycle<Any>())
                     .subscribeBy(onError = {
@@ -172,6 +154,7 @@ class ItemDetailFragment : BaseFragment() {
 
     fun snackbarWithSelectPhotoRetry(@StringRes message: Int) {
         mainActivity?.showSnackbar(message, actionRes = R.string.item_detail_select_image_retry, action = {
+            tracker.event("itemDetailRetrySelectImage")
             selectPhotoForItem()
         })
     }
@@ -180,14 +163,8 @@ class ItemDetailFragment : BaseFragment() {
         if (item == null) return
         this.item = item
 
-        if (!isEditingName) {
-            val textName = text_name
-            if (textName != null) {
-                if (item.name != textName.text.toString()) {
-                    textName.setText(item.name)
-                }
-            }
-        }
+        setTextIfNotEditing(text_name, nameChangeTracker, item.name)
+        setTextIfNotEditing(text_description, descriptionChangeTracker, item.description)
 
         rating_item?.rating = when (item.rating) {
             -1 -> 0f
@@ -197,6 +174,14 @@ class ItemDetailFragment : BaseFragment() {
         loadPhoto(item)
     }
 
+    fun setTextIfNotEditing(textView: TextView?, textWatcher: EditingTextWatcher, newText: String) {
+        if (textWatcher.isEditing) return
+        if (textView == null) return
+        if (newText != textView.text.toString()) {
+            textView.text = newText
+        }
+    }
+
     fun onRating(rating: Float) {
         tracker.event("itemDetailChangeRating", mapOf("rating" to rating.toInt()))
         val item = this.item ?: return
@@ -204,35 +189,27 @@ class ItemDetailFragment : BaseFragment() {
         saveItem(item)
     }
 
-    fun onNameChanging() {
-        isEditingName = true
-    }
-
     fun onNameChanged(name: String) {
-        nameChangeTrackerSubject.onNext(name)
         val item = this.item ?: return
         val textName = text_name ?: return
+        val res = context?.resources ?: return
         if (name.isBlank()) {
-            val errorDrawable = getNameErrorDrawable() ?: return
-            val res = context?.resources ?: return
             val message = res.getText(R.string.item_detail_item_missing_name)
-            textName.setError(message, errorDrawable)
+            textName.error = message
             textName.requestFocus()
         } else {
-            isEditingName = false
+            nameChangeTracker.isEditing = false
             textName.setError(null, null)
             item.name = name
             saveItem(item)
         }
     }
 
-    fun getNameErrorDrawable(): Drawable? {
-        val main = mainActivity ?: return null
-        val res = context?.resources ?: return null
-        val drawable = ResourcesCompat.getDrawable(res, R.drawable.ic_add_black_24dp, main.theme) ?: return null
-        val color = ContextCompat.getColor(main, R.color.colorAccent)
-        DrawableCompat.setTint(drawable, color)
-        return drawable
+    fun onDescriptionChanged(name: String) {
+        val item = this.item ?: return
+        descriptionChangeTracker.isEditing = false
+        item.description = name
+        saveItem(item)
     }
 
     fun saveItem(item: Item) {
@@ -271,6 +248,7 @@ class ItemDetailFragment : BaseFragment() {
             loadedPhotoUri = item.photoUri
             imageLoader.loadPath(item.photoUri, photoView)
         } else {
+            photoView.showImage()
             photoView.imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
             photoView.imageView.setImageResource(R.drawable.ic_add_photo_accent_128dp)
         }
@@ -291,4 +269,39 @@ class ItemDetailFragment : BaseFragment() {
         startActivityForResult(chooserIntent, REQUEST_SELECT_IMAGE)
 
     }
+
+
+    inner class EditingTextWatcher : TextWatcher {
+
+        var isEditing = false
+
+        private val trackingSubject = PublishSubject.create<String>()
+
+        fun observeTextChange(event: String, listener: (text: String) -> Unit) {
+            trackingSubject
+                    .toFlowable(BackpressureStrategy.DROP)
+                    .toObservable()
+                    .debounce(DEBOUNCE_NAME_CHANGE_MILLIS, TimeUnit.MILLISECONDS)
+                    .compose(bindToLifecycle())
+                    .subscribe({
+                        tracker.event(event, mapOf("length" to it.length))
+                    })
+            trackingSubject.toFlowable(BackpressureStrategy.DROP)
+                    .compose(bindToLifecycle())
+                    .subscribe(listener)
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+            trackingSubject.onNext(s?.toString() ?: "")
+        }
+
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            isEditing = true
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+        }
+
+    }
 }
+
