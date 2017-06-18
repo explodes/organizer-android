@@ -71,10 +71,16 @@ class MainActivity : BaseActivity() {
         categoryModel.categories.observe(this, Observer<List<CategoryStats>> { onCategories(it) })
     }
 
+    /**
+     * When we have updated categories, populate our nav with the list of Categories.
+     */
     fun onCategories(categories: List<CategoryStats>?) {
         navManager.rebuildMenuCategories(categories)
     }
 
+    /**
+     * Close the nav drawer if it is open otherwise perform the default action.
+     */
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
             tracker.event("backPress", mapOf("closeDrawer" to "true"))
@@ -85,6 +91,9 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    /**
+     * Prompt the user to create a new Category by asking for the name of the new Category
+     */
     fun showCreateCategoryDialog() {
         val categoryModel = this.categoryModel
         EditTextDialog(this)
@@ -105,6 +114,11 @@ class MainActivity : BaseActivity() {
                 .show()
     }
 
+    /**
+     * Push a new Fragment onto our Fragment stack.
+     *
+     * Also uses custom animations because they look nice.
+     */
     fun pushFragment(frag: BaseFragment) {
         supportFragmentManager.beginTransaction()
                 .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.fade_out, R.anim.slide_in_right, android.R.anim.fade_out)
@@ -113,9 +127,14 @@ class MainActivity : BaseActivity() {
                 .commit()
     }
 
+    /**
+     * NavViewManager is responsible for handling nav menu clicks and rebuilding the
+     * list of categories shown in the menu.
+     */
     inner class NavViewManager : NavigationView.OnNavigationItemSelectedListener {
         override fun onNavigationItemSelected(item: MenuItem): Boolean {
-
+            // todo(evan): correctly highlight the current menu item
+            // if the MenuItem has no ID, it was a category item that was clicked
             if (item.itemId == 0) {
                 handleCategoryMenuClick(item)
             } else {
@@ -126,9 +145,9 @@ class MainActivity : BaseActivity() {
         }
 
         fun handleCategoryMenuClick(item: MenuItem) {
-            tracker.event("navCategoryItemClick", mapOf("name" to "category", "title" to item.title))
             val tag = item.actionView?.tag ?: return
             if (tag is CategoryStats) {
+                tracker.event("navCategoryItemClick", mapOf("name" to "category", "title" to item.title))
                 pushFragment(CategoryDetailFragment.new(tag.category.id))
             }
         }
@@ -142,11 +161,11 @@ class MainActivity : BaseActivity() {
                 }
                 R.id.nav_share -> {
                     // todo(evan): open up share view
-                    showSnackbar("todo: share somehow?")
+                    showSnackbar("todo: share stuff")
                 }
                 R.id.nav_settings -> {
                     // todo(evan): find useful preferences and open up SettingsActivity
-                    showSnackbar("todo: open up preferences")
+                    showSnackbar("todo: create and show preferences")
                 }
             }
         }
@@ -164,6 +183,9 @@ class MainActivity : BaseActivity() {
                 group.isVisible = true
                 categories.forEachIndexed { index, category ->
                     val item = menu.add(0, 0, index, category.category.name)
+                    // Tuck an invisible view inside the menu item so that we can assign a
+                    // Category to the MenuItem that can used to determine which category was
+                    // clicked.
                     val view = Space(this@MainActivity)
                     view.tag = category
                     item.actionView = view

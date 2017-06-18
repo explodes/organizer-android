@@ -14,8 +14,16 @@ import io.reactivex.Single
 import javax.inject.Inject
 
 
+/**
+ * CategoryItem is a zipped combination of CategoryStats to an optional Item
+ */
 data class CategoryItem(val stats: CategoryStats, val item: Item?)
 
+/**
+ * CategoryDetailViewModel is responsible for loading a Category and all of items.
+ *
+ * It also provides the means to create a new Item and to delete a Category.
+ */
 class CategoryDetailViewModel(val categoryId: Long) : ViewModel() {
 
     @Inject
@@ -35,6 +43,9 @@ class CategoryDetailViewModel(val categoryId: Long) : ViewModel() {
 
     fun deleteCategory(category: Category): Completable = repo.deleteCategory(category)
 
+    /**
+     * Factory used to create a new CategoryDetailViewModel for a Category with a given ID
+     */
     class Factory(val categoryId: Long) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>?): T {
             @Suppress("UNCHECKED_CAST")
@@ -43,6 +54,11 @@ class CategoryDetailViewModel(val categoryId: Long) : ViewModel() {
 
     }
 
+    /**
+     * CategoryItemMediator is a mediator between CategoryStat and Item LiveData.
+     * Results are zipped into a list of CategoryItems with the first entry being a Category-only
+     * CategoryItem.
+     */
     inner class CategoryItemMediator(val categoryId: Long) : MediatorLiveData<List<CategoryItem>>() {
 
         var stats: CategoryStats? = null
@@ -59,8 +75,14 @@ class CategoryDetailViewModel(val categoryId: Long) : ViewModel() {
             }
         }
 
+        /**
+         * Zip our results into a list of CategoryItems with the first entry being a Category-only
+         * CategoryItem.
+         * If we are missing either a Category or Items, nothing is zipped and this LiveData's value
+         * is null.
+         */
         @Synchronized
-        fun updateValue() {
+        private fun updateValue() {
             val items: List<Item>? = this.items
             val stats: CategoryStats? = this.stats
 

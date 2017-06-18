@@ -33,7 +33,12 @@ import kotlinx.android.synthetic.main.fragment_item_detail.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-
+/**
+ * ItemDetailFragment has the responsibility of showing the user details of an Item.
+ *
+ * From this Fragment, the user can edit the name, description, rating, and photo of the Item.
+ * The Item can also be deleted from the menu.
+ */
 class ItemDetailFragment : BaseFragment() {
 
     companion object {
@@ -102,6 +107,10 @@ class ItemDetailFragment : BaseFragment() {
         })
     }
 
+    /**
+     * When we resume, we need to resume listening to changes
+     * to our name and description text fields
+     */
     override fun onResume() {
         super.onResume()
         nameChangeTracker.observeTextChange("itemDetailChangeName") {
@@ -135,6 +144,10 @@ class ItemDetailFragment : BaseFragment() {
         }
     }
 
+    /**
+     * When the user has selected an image from another Activity,
+     * we copy the image into our app and save the image.
+     */
     fun onImageSelected(intent: Intent?, ok: Boolean) {
         val context = this.context ?: return
         val item = this.item ?: return
@@ -152,6 +165,9 @@ class ItemDetailFragment : BaseFragment() {
 
     }
 
+    /**
+     * Show a message saying why fetching their image failed, and ask if they want to retry.
+     */
     fun snackbarWithSelectPhotoRetry(@StringRes message: Int) {
         mainActivity?.showSnackbar(message, actionRes = R.string.item_detail_select_image_retry, action = {
             tracker.event("itemDetailRetrySelectImage")
@@ -159,6 +175,14 @@ class ItemDetailFragment : BaseFragment() {
         })
     }
 
+    /**
+     * Called when the item was updated. We need to refresh
+     * our views' data (if that data point has changed).
+     *
+     * If the user is currently editing the name or description, don't overwrite their data.
+     *
+     * Save the latest item for updating.
+     */
     fun onItem(item: Item?) {
         if (item == null) return
         this.item = item
@@ -174,6 +198,9 @@ class ItemDetailFragment : BaseFragment() {
         loadPhoto(item)
     }
 
+    /**
+     * Helper function to set a TextView's text if that text view is not being edited.
+     */
     fun setTextIfNotEditing(textView: TextView?, textWatcher: EditingTextWatcher, newText: String) {
         if (textWatcher.isEditing) return
         if (textView == null) return
@@ -182,6 +209,9 @@ class ItemDetailFragment : BaseFragment() {
         }
     }
 
+    /**
+     * Update the displayed rating for an item
+     */
     fun onRating(rating: Float) {
         tracker.event("itemDetailChangeRating", mapOf("rating" to rating.toInt()))
         val item = this.item ?: return
@@ -189,6 +219,10 @@ class ItemDetailFragment : BaseFragment() {
         saveItem(item)
     }
 
+    /**
+     * If the name is changed to something blank, we should show an error.
+     * Otherwise, clear the error and save the new name to the Item
+     */
     fun onNameChanged(name: String) {
         val item = this.item ?: return
         val textName = text_name ?: return
@@ -205,6 +239,9 @@ class ItemDetailFragment : BaseFragment() {
         }
     }
 
+    /**
+     * Update the description text for the Item
+     */
     fun onDescriptionChanged(name: String) {
         val item = this.item ?: return
         descriptionChangeTracker.isEditing = false
@@ -212,12 +249,19 @@ class ItemDetailFragment : BaseFragment() {
         saveItem(item)
     }
 
+    /**
+     * Helper function to save changes to an item, recording any errors that may occur.
+     */
     fun saveItem(item: Item) {
         itemDetailModel.saveItem(item)
                 .compose(bindToLifecycle<Any>())
                 .subscribeBy(onError = { tracker.recordException(LevelE, LoggedException("Unable to save item", it)) })
     }
 
+    /**
+     * Called when the user has requested to delete an item.
+     * Asks the user for confirmation and (if they have a photo) warns that their photo will be deleted.
+     */
     fun onDeleteItemClick() {
         val item = this.item ?: return
         val context = this.context ?: return
@@ -235,12 +279,18 @@ class ItemDetailFragment : BaseFragment() {
         }, { tracker.event("itemDetailDeleteItemCancel", mapOf("hasPhoto" to item.hasPhoto())) })
     }
 
+    /**
+     * Helper function to delete an item, recording any errors that may occur.
+     */
     fun deleteItem(item: Item) {
         itemDetailModel.deleteItem(item)
                 .compose(bindToLifecycle<Any>())
                 .subscribeBy(onError = { tracker.recordException(LevelE, LoggedException("Unable to delete item", it)) })
     }
 
+    /**
+     * Loads the item photo into our image view, if it is a new photo
+     */
     fun loadPhoto(item: Item) {
         if (loadedPhotoUri == item.photoUri) return
         val photoView = image_photo ?: return
@@ -254,6 +304,9 @@ class ItemDetailFragment : BaseFragment() {
         }
     }
 
+    /**
+     * Prompts the user to select a photo from an outside activity
+     */
     fun selectPhotoForItem() {
         if (item == null) return
 
@@ -271,6 +324,10 @@ class ItemDetailFragment : BaseFragment() {
     }
 
 
+    /**
+     * Helper class to watch an EditText for text changes, tracking edit events, and sending the
+     * new text back to a listener.
+     */
     inner class EditingTextWatcher : TextWatcher {
 
         var isEditing = false

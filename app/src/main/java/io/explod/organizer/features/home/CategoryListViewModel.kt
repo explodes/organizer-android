@@ -7,6 +7,11 @@ import io.explod.organizer.service.repo.AsyncAppRepo
 import io.reactivex.Single
 import javax.inject.Inject
 
+/**
+ * CategoryListViewModel is responsible for loading a Category.
+ *
+ * It also provides the means to create a new Category.
+ */
 class CategoryListViewModel : ViewModel() {
 
     @Inject

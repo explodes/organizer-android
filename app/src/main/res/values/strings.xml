@@ -44,7 +44,7 @@
     <string name="item_detail_item_missing_name">Name cannot be empty</string>
     <string name="item_detail_delete_item">Delete item</string>
     <string name="item_detail_delete_item_confirmation">Deleting this item is permanent. Are you sure you want to continue?</string>
-    <string name="item_detail_delete_item_confirmation_with_photo">Deleting this item will also permanently delete the attachment. Are you sure you want to continue?</string>
+    <string name="item_detail_delete_item_confirmation_with_photo">Deleting this item will also permanently delete the attachment from Organizer. Are you sure you want to continue?</string>
     <string name="item_detail_select_image_cancelled">Photo selection cancelled</string>
     <string name="item_detail_select_image_download_error">There was an error getting your photo</string>
     <string name="item_detail_select_image_retry">Retry</string>

@@ -30,16 +30,25 @@ class EditTextDialog(private val context: Context) {
     @StringRes
     private var titleRes: Int = 0
 
+    /**
+     * Set the dialog's title
+     */
     fun setTitle(@StringRes title: Int): EditTextDialog {
         titleRes = title
         return this
     }
 
+    /**
+     * Set the initial text in the dialog. Text will be selected when the dialog opens
+     */
     fun setInitialText(initialText: String): EditTextDialog {
         this.initialText = initialText
         return this
     }
 
+    /**
+     * Sets the callback for when text is submitted, held by weak reference
+     */
     fun setOnTextChangedListener(listener: OnTextChangedListener?): EditTextDialog {
         val listenerRef = this.listenerRef
         if (listenerRef != null) {
@@ -52,6 +61,10 @@ class EditTextDialog(private val context: Context) {
         return this
     }
 
+    /**
+     * Show and return the dialog. The keyboard will be automatically opened and closed
+     * for the user's convenience.
+     */
     fun show(): AlertDialog {
         val input = makeEditText()
 

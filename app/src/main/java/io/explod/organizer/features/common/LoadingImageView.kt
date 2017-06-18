@@ -14,6 +14,10 @@ import io.explod.organizer.extensions.hide
 import io.explod.organizer.extensions.show
 import kotlinx.android.synthetic.main.view_loading_image.view.*
 
+/**
+ * ImageView wrapper that will show a loading spinner while an image is being prepared.
+ * It is a viable target for Picasso.
+ */
 class LoadingImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
     : FrameLayout(context, attrs, defStyleAttr),
         Target {

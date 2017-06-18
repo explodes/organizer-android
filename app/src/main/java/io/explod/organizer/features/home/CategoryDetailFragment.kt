@@ -23,6 +23,11 @@ import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.android.synthetic.main.fragment_category_detail.*
 import javax.inject.Inject
 
+/**
+ * CategoryDetailFragment has the responsibility to show a Category's information and items.
+ *
+ * There is also a menu option to delete the Category.
+ */
 class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
 
     companion object {
@@ -94,11 +99,20 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
         return false
     }
 
+    /**
+     * Called when a user clicks an Item in our adapter
+     */
     override fun onItemClick(item: Item) {
         tracker.event("categoryDetailItemClick", mapOf("name" to item.name))
         mainActivity?.pushFragment(ItemDetailFragment.new(item.id))
     }
 
+    /**
+     * Called when we receive new items from our ViewModel.
+     *
+     * Loads the items into our adapter.
+     * Saves the current CategoryStats for later use such as adding items to the Category.
+     */
     fun onCategoryItems(items: List<CategoryItem>?) {
         if (recycler_items == null) return
         categoryItemsAdapter.replaceItems(items)
@@ -107,6 +121,12 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
         }
     }
 
+    /**
+     * Called when the user selects the "Delete category" menu item.
+     *
+     * Prompts the user to confirm deletion before actually doing so.
+     * If it is confirmed, the Category is deleted and this Fragment is popped off the stack.
+     */
     fun onDeleteCategoryClick() {
         val stats = this.stats ?: return
         val context = this.context ?: return
@@ -117,12 +137,18 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
         }, { tracker.event("categoryDetailDeleteCategoryCancel") })
     }
 
+    /**
+     * Called when the user has confirmed that they want to delete the Category
+     */
     fun deleteCategory(category: Category) {
         categoryDetailModel.deleteCategory(category)
                 .compose(bindToLifecycle<Any>())
                 .subscribeBy(onError = { tracker.recordException(LevelE, LoggedException("Unable to delete category", it)) })
     }
 
+    /**
+     * Show the dialog to create a new Item for the current Category
+     */
     fun showCreateItemDialog() {
         val context = this.context ?: return
         val stats = this.stats ?: return
@@ -146,6 +172,11 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
 
 }
 
+/**
+ * Adapter for CategoryItems.
+ *
+ * Shows a Category header item and Items for each Item in the Category.
+ */
 class CategoryItemAdapter : ListAdapter<CategoryItem, CategoryItemAdapter.CategoryItemViewHolder>() {
 
     interface Listener {
@@ -274,6 +305,9 @@ class CategoryItemAdapter : ListAdapter<CategoryItem, CategoryItemAdapter.Catego
     }
 }
 
+/**
+ * Diff calculator for lists of CategoryItems
+ */
 class CategoryItemDiffCallback(old: List<CategoryItem>?, new: List<CategoryItem>?) : ListDiffCallback<CategoryItem>(old, new) {
 
     override fun areItemsTheSame(old: CategoryItem, new: CategoryItem): Boolean {

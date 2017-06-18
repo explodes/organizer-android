@@ -24,7 +24,11 @@ import kotlinx.android.synthetic.main.stub_category_list.*
 import kotlinx.android.synthetic.main.stub_category_list_empty.*
 import javax.inject.Inject
 
-
+/**
+ * CategoryListFragment has the responsibility of listing available Categories.
+ *
+ * There is also a FloatingActionButton that allows the user to add a new Category.
+ */
 class CategoryListFragment : BaseFragment(), CategoryAdapter.Listener {
 
     companion object {
@@ -73,6 +77,11 @@ class CategoryListFragment : BaseFragment(), CategoryAdapter.Listener {
         mainActivity?.pushFragment(CategoryDetailFragment.new(category.category.id))
     }
 
+    /**
+     * Called when receive new Categories from our ViewModel.
+     *
+     * Updates the adapter with our Category list
+     */
     fun onCategories(categories: List<CategoryStats>?) {
         if (recycler_categories == null || stub_categories_empty == null) return
 
@@ -83,6 +92,12 @@ class CategoryListFragment : BaseFragment(), CategoryAdapter.Listener {
         categoriesAdapter.replaceItems(categories)
     }
 
+    /**
+     * Called when the user asks to create a new Category.
+     *
+     * The work is delegated to the MainActivity where the functionality to create a new Category
+     * already exists.
+     */
     fun onCreateCategoryClick() {
         mainActivity?.showCreateCategoryDialog()
     }
