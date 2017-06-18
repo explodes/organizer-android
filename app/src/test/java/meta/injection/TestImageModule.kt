@@ -1,9 +1,8 @@
 package io.explod.organizer.injection
 
-import android.widget.ImageView
 import dagger.Module
 import dagger.Provides
-import io.explod.organizer.R
+import io.explod.organizer.features.common.LoadingImageView
 import io.explod.organizer.service.images.ImageLoader
 import javax.inject.Singleton
 
@@ -15,8 +14,8 @@ class TestImageModule {
     @Singleton
     internal fun providesImageLoader(): ImageLoader {
         return object : ImageLoader {
-            override fun loadPath(uri: String, imageView: ImageView) {
-                imageView.setImageResource(R.drawable.ic_broken_image_accent_24dp)
+            override fun loadPath(path: String, view: LoadingImageView) {
+                view.showError()
             }
         }
     }

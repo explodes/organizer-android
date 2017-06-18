@@ -61,8 +61,11 @@ class AppRepoImpl : AppRepo {
         db.categories().update(category)
     }
 
-    override fun deleteCategory(categoryId: Long) {
-        db.categories().delete(categoryId)
+    override fun deleteCategory(category: Category) {
+        db.items().byCategoryDirect(category.id).forEach {
+            it.deletePhotoIfExists()
+        }
+        db.categories().delete(category)
     }
 
     override fun getAllItemsForCategory(categoryId: Long): LiveData<List<Item>> {
@@ -83,8 +86,9 @@ class AppRepoImpl : AppRepo {
         db.items().update(item)
     }
 
-    override fun deleteItem(itemId: Long) {
-        db.items().delete(itemId)
+    override fun deleteItem(item: Item) {
+        item.deletePhotoIfExists()
+        db.items().delete(item)
     }
 
     @Throws(IOException::class)

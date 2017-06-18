@@ -41,7 +41,7 @@ class AsyncAppRepo {
     fun getCategoryById(categoryId: Long): LiveData<CategoryStats> = synchronously.getCategoryById(categoryId)
     fun createCategory(name: String): Single<Category> = asSingle { synchronously.createCategory(name) }
     fun updateCategory(category: Category) = asCompletable { synchronously.updateCategory(category) }
-    fun deleteCategory(categoryId: Long) = asCompletable { synchronously.deleteCategory(categoryId) }
+    fun deleteCategory(category: Category) = asCompletable { synchronously.deleteCategory(category) }
 
     /* Items */
 
@@ -49,7 +49,7 @@ class AsyncAppRepo {
     fun getItemById(itemId: Long): LiveData<Item> = synchronously.getItemById(itemId)
     fun createItem(categoryId: Long, name: String, rating: Int = -1, photo: Uri? = null): Single<Item> = asSingle { synchronously.createItem(categoryId = categoryId, name = name, rating = rating, photo = photo) }
     fun updateItem(item: Item) = asCompletable { synchronously.updateItem(item) }
-    fun deleteItem(itemId: Long) = asCompletable { synchronously.deleteItem(itemId) }
+    fun deleteItem(item: Item) = asCompletable { synchronously.deleteItem(item) }
 
     fun downloadPhotoForItem(context: Context, item: Item, source: Uri): Completable = asCompletable { synchronously.downloadPhotoForItem(context, item, source) }
 

@@ -60,7 +60,7 @@ class AsyncAppRepoTest : BaseRoboTest() {
         val data = offload {
             val cat1 = repo.synchronously.createCategory("cat1")
 
-            repo.deleteCategory(cat1.id).blockingAwait()
+            repo.deleteCategory(cat1).blockingAwait()
 
             repo.synchronously.getCategoryById(cat1.id)
         }
@@ -136,7 +136,7 @@ class AsyncAppRepoTest : BaseRoboTest() {
             val cat1 = repo.synchronously.createCategory("cat1")
             val item1 = repo.synchronously.createItem(cat1.id, "item1")
 
-            repo.deleteItem(item1.id).blockingAwait()
+            repo.deleteItem(item1).blockingAwait()
 
             repo.synchronously.getItemById(item1.id)
         }

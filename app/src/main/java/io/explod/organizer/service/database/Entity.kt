@@ -59,6 +59,8 @@ class Item {
 
     var name = ""
 
+    var description = ""
+
     var rating = -1
         @IntRange(from = -1, to = 5) set
 
@@ -75,6 +77,6 @@ class Item {
 
 }
 
-fun Item.hasPhoto():Boolean {
+fun Item.hasPhoto(): Boolean {
     return !photoUri.isBlank()
 }

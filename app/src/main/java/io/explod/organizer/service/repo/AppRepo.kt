@@ -35,7 +35,7 @@ interface AppRepo {
     /**
      * Delete a Category
      */
-    fun deleteCategory(categoryId: Long)
+    fun deleteCategory(category: Category)
 
     /* Items */
 
@@ -62,7 +62,7 @@ interface AppRepo {
     /**
      * Delete an Item
      */
-    fun deleteItem(itemId: Long)
+    fun deleteItem(item: Item)
 
     /**
      * Download a photo and save the new Uri to the Item

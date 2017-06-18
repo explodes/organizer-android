@@ -69,6 +69,8 @@ class ItemDetailFragment : BaseFragment() {
 
     var item: Item? = null
 
+    var loadedPhotoUri: String? = null
+
     var isEditingName = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -251,26 +253,26 @@ class ItemDetailFragment : BaseFragment() {
 
         ConfirmationDialog.show(context, R.string.item_detail_delete_item, confirmation, {
             tracker.event("itemDetailDeleteItemConfirm", mapOf("hasPhoto" to item.hasPhoto()))
-            deleteItem(item.id)
+            deleteItem(item)
             fragmentManager?.popBackStack()
         }, { tracker.event("itemDetailDeleteItemCancel", mapOf("hasPhoto" to item.hasPhoto())) })
     }
 
-    fun deleteItem(itemId: Long) {
-        itemDetailModel.deleteItem(itemId)
+    fun deleteItem(item: Item) {
+        itemDetailModel.deleteItem(item)
                 .compose(bindToLifecycle<Any>())
                 .subscribeBy(onError = { tracker.recordException(LevelE, LoggedException("Unable to delete item", it)) })
     }
 
     fun loadPhoto(item: Item) {
+        if (loadedPhotoUri == item.photoUri) return
         val photoView = image_photo ?: return
         if (item.hasPhoto()) {
-            photoView.scaleType = ImageView.ScaleType.FIT_CENTER
+            loadedPhotoUri = item.photoUri
             imageLoader.loadPath(item.photoUri, photoView)
         } else {
-            photoView.scaleType = ImageView.ScaleType.CENTER_INSIDE
-            photoView.setImageResource(R.drawable.ic_add_photo_accent_128dp)
-
+            photoView.imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
+            photoView.imageView.setImageResource(R.drawable.ic_add_photo_accent_128dp)
         }
     }
 

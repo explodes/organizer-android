@@ -28,7 +28,7 @@ class ItemDetailViewModel(val itemId: Long) : ViewModel() {
 
     fun saveItem(item: Item): Completable = repo.updateItem(item)
 
-    fun deleteItem(itemId: Long): Completable = repo.deleteItem(itemId)
+    fun deleteItem(item: Item): Completable = repo.deleteItem(item)
 
     fun downloadPhotoForItem(context: Context, item: Item, source: Uri) = repo.downloadPhotoForItem(context, item, source)
 

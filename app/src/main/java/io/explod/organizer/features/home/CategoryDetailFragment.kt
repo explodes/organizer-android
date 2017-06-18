@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
 import android.view.*
 import android.widget.TextView
+import io.explod.arch.data.Category
 import io.explod.arch.data.Item
 import io.explod.organizer.R
 import io.explod.organizer.extensions.*
@@ -111,13 +112,13 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
         val context = this.context ?: return
         ConfirmationDialog.show(context, R.string.category_detail_delete_category, R.string.category_detail_delete_category_confirmation, {
             tracker.event("categoryDetailDeleteCategoryConfirm")
-            deleteCategory(stats.category.id)
+            deleteCategory(stats.category)
             fragmentManager?.popBackStack()
         }, { tracker.event("categoryDetailDeleteCategoryCancel") })
     }
 
-    fun deleteCategory(categoryId: Long) {
-        categoryDetailModel.deleteCategory(categoryId)
+    fun deleteCategory(category: Category) {
+        categoryDetailModel.deleteCategory(category)
                 .compose(bindToLifecycle<Any>())
                 .subscribeBy(onError = { tracker.recordException(LevelE, LoggedException("Unable to delete category", it)) })
     }

@@ -111,6 +111,7 @@ class EditTextDialog(private val context: Context) {
         // - enable GO keyboard button
         // - enable auto-capitalization
         val input = EditText(context)
+        input.id = R.id.text_input
         val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         input.layoutParams = lp
         input.setText(initialText)

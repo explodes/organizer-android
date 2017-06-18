@@ -52,23 +52,11 @@ interface CategoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(category: Category): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(vararg categories: Category)
-
     @Update(onConflict = OnConflictStrategy.REPLACE)
     fun update(category: Category): Int
 
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun update(vararg categories: Category): Int
-
-    @Query("DELETE FROM categories WHERE id = :arg0")
-    fun delete(categoryId: Long): Int
-
     @Delete
     fun delete(category: Category): Int
-
-    @Delete
-    fun delete(vararg categories: Category): Int
 
 }
 
@@ -77,37 +65,29 @@ interface ItemDao {
 
     companion object {
         private const val QUERY_BY_CATEGORY_DESCENDING_BY_DATE = "SELECT * FROM items WHERE category_id = :arg0 ORDER BY created_date DESC"
+        private const val QUERY_BY_ID = "SELECT * FROM items WHERE id = :arg0"
     }
 
     @Query(QUERY_BY_CATEGORY_DESCENDING_BY_DATE)
     fun byCategory(categoryId: Long): LiveData<List<Item>>
 
+    @Query(QUERY_BY_CATEGORY_DESCENDING_BY_DATE)
+    fun byCategoryDirect(categoryId: Long): List<Item>
+
     @VisibleForTesting
     @Query(QUERY_BY_CATEGORY_DESCENDING_BY_DATE)
     fun byCategoryAsList(categoryId: Long): List<Item>
 
-    @Query("SELECT * FROM items WHERE id = :arg0")
+    @Query(QUERY_BY_ID)
     fun byId(id: Long): LiveData<Item>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(item: Item): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(vararg items: Item)
-
     @Update(onConflict = OnConflictStrategy.REPLACE)
     fun update(item: Item): Int
 
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun update(vararg items: Item): Int
-
-    @Query("DELETE FROM items WHERE id = :arg0")
-    fun delete(itemId: Long): Int
-
     @Delete
     fun delete(item: Item): Int
-
-    @Delete
-    fun delete(vararg items: Item): Int
 
 }

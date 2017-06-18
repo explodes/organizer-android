@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MediatorLiveData
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
+import io.explod.arch.data.Category
 import io.explod.arch.data.Item
 import io.explod.organizer.injection.ObjectGraph.injector
 import io.explod.organizer.service.database.CategoryStats
@@ -32,7 +33,7 @@ class CategoryDetailViewModel(val categoryId: Long) : ViewModel() {
 
     fun createItem(categoryId: Long, name: String): Single<Item> = repo.createItem(categoryId, name)
 
-    fun deleteCategory(categoryId: Long): Completable = repo.deleteCategory(categoryId)
+    fun deleteCategory(category: Category): Completable = repo.deleteCategory(category)
 
     class Factory(val categoryId: Long) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>?): T {
