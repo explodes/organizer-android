@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/category_list_card_height"
+    android:layout_height="@dimen/category_detail_category_card_height"
     android:layout_gravity="center"
     android:layout_margin="@dimen/category_list_card_margin"
     android:elevation="@dimen/cardview_default_elevation"

@@ -4,15 +4,20 @@
 
 package io.explod.organizer.service.tracking
 
+import android.content.Context
+import io.reactivex.Completable
+import io.reactivex.Observable
+import java.util.*
+
 /**
  * A tracker that delegates to multiple trackers
  */
 class MultiTracker(vararg trackers: Tracker) : Tracker {
 
-    private val mTrackers: List<Tracker> = java.util.Collections.unmodifiableList(java.util.Arrays.asList(*trackers))
+    private val mTrackers: List<Tracker> = Collections.unmodifiableList(java.util.Arrays.asList(*trackers))
 
-    override fun initialize(context: android.content.Context): io.reactivex.Completable {
-        return io.reactivex.Observable.fromIterable(mTrackers)
+    override fun initialize(context: Context): Completable {
+        return Observable.fromIterable(mTrackers)
                 .flatMapCompletable { t -> t.initialize(context) }
     }
 

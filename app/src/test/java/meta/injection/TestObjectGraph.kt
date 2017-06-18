@@ -26,7 +26,8 @@ object TestObjectGraph {
         AppModule::class,
         RepoModule::class,
         TestTrackerModule::class,
-        TestDatabaseModule::class
+        TestDatabaseModule::class,
+        TestImageModule::class
 ))
 @Singleton
 interface TestObjectComponent : ObjectComponent, TestInjector

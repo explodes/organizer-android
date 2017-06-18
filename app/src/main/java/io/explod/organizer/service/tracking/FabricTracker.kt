@@ -9,6 +9,7 @@ import android.util.Log.getStackTraceString
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.CustomEvent
+import io.fabric.sdk.android.Fabric
 import io.reactivex.Completable
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
@@ -22,7 +23,7 @@ class FabricTracker : Tracker {
     private val initializedTracker: BehaviorSubject<Tracker> = BehaviorSubject.create()
 
     override fun initialize(context: Context): Completable {
-        return Completable.fromCallable { io.fabric.sdk.android.Fabric.with(context, Crashlytics(), Answers()) }
+        return Completable.fromCallable { Fabric.with(context, Crashlytics(), Answers()) }
                 .doOnComplete { initializedTracker.onNext(InitializedFabricTracker()) }
                 .subscribeOn(Schedulers.io())
     }
@@ -52,7 +53,7 @@ class FabricTracker : Tracker {
 
 private class InitializedFabricTracker : Tracker {
 
-    override fun initialize(context: android.content.Context): Completable = Completable.complete()
+    override fun initialize(context: Context): Completable = Completable.complete()
 
     override fun event(action: String, properties: Map<String, Any>?) {
         val event = CustomEvent(action)

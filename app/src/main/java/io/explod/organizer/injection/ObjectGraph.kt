@@ -35,7 +35,8 @@ object ObjectGraph {
         AppModule::class,
         TrackerModule::class,
         RepoModule::class,
-        DatabaseModule::class
+        DatabaseModule::class,
+        ImageModule::class
 ))
 @Singleton
 interface ObjectComponent : Injector

@@ -15,4 +15,8 @@
     <dimen name="category_list_card_margin">6dp</dimen>
     <dimen name="category_list_empty_message_width">280dp</dimen>
 
+    <!-- Feature: CategoryDetail -->
+    <dimen name="category_detail_category_card_height">48dp</dimen>
+    <dimen name="category_detail_item_card_height">64dp</dimen>
+
 </resources>

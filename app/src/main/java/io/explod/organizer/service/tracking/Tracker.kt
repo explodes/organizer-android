@@ -4,6 +4,10 @@
 
 package io.explod.organizer.service.tracking
 
+import android.content.Context
+import android.support.annotation.IntDef
+import io.reactivex.Completable
+
 const val LevelV = android.util.Log.VERBOSE
 const val LevelD = android.util.Log.DEBUG
 const val LevelI = android.util.Log.INFO
@@ -11,7 +15,7 @@ const val LevelW = android.util.Log.WARN
 const val LevelE = android.util.Log.ERROR
 const val LevelA = android.util.Log.ASSERT
 
-@android.support.annotation.IntDef(io.explod.organizer.service.tracking.LevelV.toLong(), io.explod.organizer.service.tracking.LevelD.toLong(), io.explod.organizer.service.tracking.LevelI.toLong(), io.explod.organizer.service.tracking.LevelW.toLong(), io.explod.organizer.service.tracking.LevelE.toLong(), io.explod.organizer.service.tracking.LevelA.toLong())
+@IntDef(LevelV.toLong(), LevelD.toLong(), LevelI.toLong(), LevelW.toLong(), LevelE.toLong(), LevelA.toLong())
 annotation class LogLevel
 
 
@@ -23,7 +27,7 @@ interface Tracker {
     /**
      * Prepare the tracker with context
      */
-    fun initialize(context: android.content.Context): io.reactivex.Completable
+    fun initialize(context: Context): Completable
 
     /**
      * Record a user event, such as clicking on a button or toggling a setting
@@ -40,7 +44,7 @@ interface Tracker {
      * @param level log level of this event, as some errors are more serious than others
      * @param t exception to record
      */
-    fun recordException(@io.explod.organizer.service.tracking.LogLevel level: Int, t: Throwable)
+    fun recordException(@LogLevel level: Int, t: Throwable)
 
     /**
      * Log information about user flow, or an error.
@@ -51,7 +55,7 @@ interface Tracker {
      * @param message message to log
      * @param t optional exception to log
      */
-    fun log(@io.explod.organizer.service.tracking.LogLevel level: Int, tag: String, message: String, t: Throwable? = null)
+    fun log(@LogLevel level: Int, tag: String, message: String, t: Throwable? = null)
 
 }
 
