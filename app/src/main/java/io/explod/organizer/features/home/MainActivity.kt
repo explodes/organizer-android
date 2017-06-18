@@ -21,7 +21,7 @@ import io.explod.organizer.features.common.BaseFragment
 import io.explod.organizer.features.common.EditTextDialog
 import io.explod.organizer.injection.ObjectGraph.injector
 import io.explod.organizer.service.database.CategoryStats
-import io.explod.organizer.service.tracking.LevelW
+import io.explod.organizer.service.tracking.LevelE
 import io.explod.organizer.service.tracking.LoggedException
 import io.explod.organizer.service.tracking.Tracker
 import io.reactivex.rxkotlin.subscribeBy
@@ -79,10 +79,10 @@ class MainActivity : BaseActivity() {
 
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
-            tracker.event("backPress", mapOf("closeDrawer", "true"))
+            tracker.event("backPress", mapOf("closeDrawer" to "true"))
             drawer_layout.closeDrawer(GravityCompat.START)
         } else {
-            tracker.event("backPress", mapOf("closeDrawer", "false"))
+            tracker.event("backPress", mapOf("closeDrawer" to "false"))
             super.onBackPressed()
         }
     }
@@ -112,7 +112,7 @@ class MainActivity : BaseActivity() {
                         if (!TextUtils.isEmpty(newText)) {
                             categoryModel.createCategory(newText)
                                     .compose(bindToLifecycle())
-                                    .subscribeBy(onError = { tracker.recordException(LevelW, LoggedException("Unable to create category", it)) })
+                                    .subscribeBy(onError = { tracker.recordException(LevelE, LoggedException("Unable to create category", it)) })
                         } else {
                             showSnackbar(R.string.home_error_category_name_empty, length = Snackbar.LENGTH_LONG, actionRes = R.string.home_error_category_name_empty_retry_action, action = {
                                 showCreateCategoryDialog()
@@ -125,8 +125,8 @@ class MainActivity : BaseActivity() {
 
     fun pushFragment(frag: BaseFragment) {
         supportFragmentManager.beginTransaction()
-                .add(R.id.container, frag)
-                .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.fade_out, R.anim.slide_in_right, android.R.anim.fade_out)
+                .replace(R.id.container, frag)
                 .addToBackStack(null)
                 .commit()
     }
@@ -192,3 +192,4 @@ class MainActivity : BaseActivity() {
     }
 
 }
+

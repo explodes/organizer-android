@@ -29,6 +29,8 @@
     <string name="category_detail_create_item">Create item</string>
     <string name="category_detail_item_name_empty">Categories must have a title</string>
     <string name="category_detail_item_empty_retry_action">Retry</string>
+    <string name="category_detail_delete_category">Delete category</string>
+    <string name="category_detail_delete_category_confirmation">Deleting this category will also delete all of the items in this category. Are you sure you want to continue?</string>
     <plurals name="category_detail_rating">
         <item quantity="one">1 star</item>
         <item quantity="other">%d stars</item>
@@ -38,5 +40,9 @@
     <string name="item_detail_content_image">Custom item image</string>
     <string name="item_detail_item_name_hint">Item name</string>
     <string name="item_detail_item_missing_name">Name cannot be empty</string>
+    <string name="item_detail_delete_item">Delete item</string>
+    <string name="item_detail_delete_item_confirmation">Deleting this item is permanent. Are you sure you want to continue?</string>
+    <string name="item_detail_delete_item_confirmation_with_photo">Deleting this item will also permanently delete the attachment. Are you sure you want to continue?</string>
+
 
 </resources>

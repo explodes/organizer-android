@@ -7,20 +7,15 @@ import android.support.v7.util.DiffUtil
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
 import io.explod.arch.data.Item
 import io.explod.organizer.R
 import io.explod.organizer.extensions.*
-import io.explod.organizer.features.common.BaseFragment
-import io.explod.organizer.features.common.EditTextDialog
-import io.explod.organizer.features.common.ListAdapter
-import io.explod.organizer.features.common.ListDiffCallback
+import io.explod.organizer.features.common.*
 import io.explod.organizer.injection.ObjectGraph.injector
 import io.explod.organizer.service.database.CategoryStats
-import io.explod.organizer.service.tracking.LevelW
+import io.explod.organizer.service.tracking.LevelE
 import io.explod.organizer.service.tracking.LoggedException
 import io.explod.organizer.service.tracking.Tracker
 import io.reactivex.rxkotlin.subscribeBy
@@ -54,6 +49,7 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         injector.inject(this)
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -81,6 +77,22 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
         })
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        mainActivity?.menuInflater
+        inflater.inflate(R.menu.category_detail, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.action_delete_category -> {
+                tracker.event("categoryDetailMenuDeleteCategory")
+                onDeleteCategoryClick()
+                return true
+            }
+        }
+        return false
+    }
+
     override fun onItemClick(item: Item) {
         tracker.event("categoryDetailItemClick", mapOf("name" to item.name))
         mainActivity?.pushFragment(ItemDetailFragment.new(item.id))
@@ -94,10 +106,25 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
         }
     }
 
+    fun onDeleteCategoryClick() {
+        val stats = this.stats ?: return
+        val context = this.context ?: return
+        ConfirmationDialog.show(context, R.string.category_detail_delete_category, R.string.category_detail_delete_category_confirmation, {
+            tracker.event("categoryDetailDeleteCategoryConfirm")
+            deleteCategory(stats.category.id)
+            fragmentManager?.popBackStack()
+        }, { tracker.event("categoryDetailDeleteCategoryCancel") })
+    }
+
+    fun deleteCategory(categoryId: Long) {
+        categoryDetailModel.deleteCategory(categoryId)
+                .compose(bindToLifecycle<Any>())
+                .subscribeBy(onError = { tracker.recordException(LevelE, LoggedException("Unable to delete category", it)) })
+    }
+
     fun showCreateItemDialog() {
         val context = this.context ?: return
         val stats = this.stats ?: return
-        val categoryDetailModel = this.categoryDetailModel
         EditTextDialog(context)
                 .setTitle(R.string.category_detail_create_item)
                 .setOnTextChangedListener(object : EditTextDialog.OnTextChangedListener {
@@ -105,7 +132,7 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
                         if (!TextUtils.isEmpty(newText)) {
                             categoryDetailModel.createItem(stats.category.id, newText)
                                     .compose(bindToLifecycle())
-                                    .subscribeBy(onError = { tracker.recordException(LevelW, LoggedException("Unable to create item", it)) })
+                                    .subscribeBy(onError = { tracker.recordException(LevelE, LoggedException("Unable to create item", it)) })
                         } else {
                             mainActivity?.showSnackbar(R.string.category_detail_item_name_empty, length = Snackbar.LENGTH_LONG, actionRes = R.string.category_detail_item_empty_retry_action, action = {
                                 showCreateItemDialog()

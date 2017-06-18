@@ -8,9 +8,7 @@ import android.support.v4.content.res.ResourcesCompat
 import android.support.v4.graphics.drawable.DrawableCompat
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.RatingBar
 import io.explod.arch.data.Item
 import io.explod.organizer.R
@@ -18,8 +16,9 @@ import io.explod.organizer.extensions.args
 import io.explod.organizer.extensions.getModelWithFactory
 import io.explod.organizer.extensions.mainActivity
 import io.explod.organizer.features.common.BaseFragment
+import io.explod.organizer.features.common.ConfirmationDialog
 import io.explod.organizer.injection.ObjectGraph.injector
-import io.explod.organizer.service.tracking.LevelW
+import io.explod.organizer.service.tracking.LevelE
 import io.explod.organizer.service.tracking.LoggedException
 import io.explod.organizer.service.tracking.Tracker
 import io.reactivex.BackpressureStrategy
@@ -60,6 +59,7 @@ class ItemDetailFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         injector.inject(this)
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -108,6 +108,22 @@ class ItemDetailFragment : BaseFragment() {
                         tracker.event("itemDetailChangeName", mapOf("name" to it))
                     }
                 })
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        mainActivity?.menuInflater
+        inflater.inflate(R.menu.item_detail, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.action_delete_item -> {
+                tracker.event("itemDetailMenuDeleteItem")
+                onDeleteItemClick()
+                return true
+            }
+        }
+        return false
     }
 
     fun onItem(item: Item?) {
@@ -170,6 +186,30 @@ class ItemDetailFragment : BaseFragment() {
     fun saveItem(item: Item) {
         itemDetailModel.saveItem(item)
                 .compose(bindToLifecycle<Any>())
-                .subscribeBy(onError = { tracker.recordException(LevelW, LoggedException("Unable to save item", it)) })
+                .subscribeBy(onError = { tracker.recordException(LevelE, LoggedException("Unable to save item", it)) })
+    }
+
+    fun onDeleteItemClick() {
+        val item = this.item ?: return
+        val context = this.context ?: return
+
+        val hasPhoto = !item.photoUri.isBlank()
+        val confirmation = if (hasPhoto) {
+            R.string.item_detail_delete_item_confirmation_with_photo
+        } else {
+            R.string.item_detail_delete_item_confirmation
+        }
+
+        ConfirmationDialog.show(context, R.string.item_detail_delete_item, confirmation, {
+            tracker.event("itemDetailDeleteItemConfirm", mapOf("hasPhoto" to hasPhoto))
+            deleteItem(item.id)
+            fragmentManager?.popBackStack()
+        }, { tracker.event("itemDetailDeleteItemCancel", mapOf("hasPhoto" to hasPhoto)) })
+    }
+
+    fun deleteItem(itemId: Long) {
+        itemDetailModel.deleteItem(itemId)
+                .compose(bindToLifecycle<Any>())
+                .subscribeBy(onError = { tracker.recordException(LevelE, LoggedException("Unable to delete item", it)) })
     }
 }

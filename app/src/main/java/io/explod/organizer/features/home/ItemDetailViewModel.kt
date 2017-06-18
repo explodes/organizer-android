@@ -24,9 +24,9 @@ class ItemDetailViewModel(val itemId: Long) : ViewModel() {
         injector.inject(this)
     }
 
-    fun saveItem(item: Item): Completable {
-        return repo.updateItem(item)
-    }
+    fun saveItem(item: Item): Completable = repo.updateItem(item)
+
+    fun deleteItem(itemId: Long): Completable = repo.deleteItem(itemId)
 
     class Factory(val itemId: Long) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>?): T {
