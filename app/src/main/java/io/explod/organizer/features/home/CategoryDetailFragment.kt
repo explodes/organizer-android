@@ -276,7 +276,7 @@ class CategoryItemAdapter : ListAdapter<CategoryItem, CategoryItemAdapter.Catego
 
 class CategoryItemDiffCallback(old: List<CategoryItem>?, new: List<CategoryItem>?) : ListDiffCallback<CategoryItem>(old, new) {
 
-    override fun isTheSame(old: CategoryItem, new: CategoryItem): Boolean {
+    override fun areItemsTheSame(old: CategoryItem, new: CategoryItem): Boolean {
         return old.stats.category.id == new.stats.category.id &&
                 ((old.item == null && new.item == null) || (old.item != null && new.item != null && old.item.id == new.item.id))
     }

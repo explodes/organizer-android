@@ -14,7 +14,9 @@ import android.widget.TextView
 import io.explod.organizer.R
 import java.lang.ref.WeakReference
 
-
+/**
+ * EditTextDialog is a helper for creating a dialog that asks the user for a string
+ */
 class EditTextDialog(private val context: Context) {
 
     interface OnTextChangedListener {

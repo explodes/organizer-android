@@ -6,6 +6,9 @@ import io.explod.organizer.features.home.MainActivity
 
 private val EMPTY_BUNDLE = Bundle()
 
+/**
+ * Quick access for the MainActivity
+ */
 val Fragment.mainActivity: MainActivity?
     get() {
         val activity = activity
@@ -15,6 +18,9 @@ val Fragment.mainActivity: MainActivity?
         return null
     }
 
+/**
+ * Non-null access to arguments
+ */
 val Fragment.args: Bundle
     get() {
         val args = arguments

@@ -4,6 +4,9 @@ import android.app.AlertDialog
 import android.content.Context
 import android.support.annotation.StringRes
 
+/**
+ * ConfirmationDialog is a helper for easily building a simple confirmation dialog
+ */
 class ConfirmationDialog {
     companion object {
 

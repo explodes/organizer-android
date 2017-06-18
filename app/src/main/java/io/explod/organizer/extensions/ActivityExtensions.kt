@@ -3,10 +3,12 @@ package io.explod.organizer.extensions
 import android.support.annotation.StringRes
 import android.support.design.widget.Snackbar
 import android.view.View
-import android.widget.Toast
 import io.explod.organizer.features.home.MainActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
+/**
+ * Shortcut to show a Snackbar with a message
+ */
 fun MainActivity.showSnackbar(@StringRes messageRes: Int, length: Int = Snackbar.LENGTH_SHORT, @StringRes actionRes: Int = 0, action: ((View) -> Unit)? = null, view: View? = this.coordinator) {
     if (view != null) {
         val snackbar = Snackbar.make(coordinator, messageRes, length)
@@ -17,6 +19,9 @@ fun MainActivity.showSnackbar(@StringRes messageRes: Int, length: Int = Snackbar
     }
 }
 
+/**
+ * Shortcut to show a Snackbar with a message
+ */
 fun MainActivity.showSnackbar(message: String, length: Int = Snackbar.LENGTH_SHORT, @StringRes actionRes: Int = 0, action: ((View) -> Unit)? = null, view: View? = this.coordinator) {
     if (view != null) {
         val snackbar = Snackbar.make(coordinator, message, length)
@@ -25,16 +30,4 @@ fun MainActivity.showSnackbar(message: String, length: Int = Snackbar.LENGTH_SHO
         }
         snackbar.show()
     }
-}
-
-fun MainActivity.toastShort(message: String) {
-    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-}
-
-fun MainActivity.toastLong(@StringRes message: Int) {
-    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-}
-
-fun MainActivity.toastLong(message: String) {
-    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
 }
