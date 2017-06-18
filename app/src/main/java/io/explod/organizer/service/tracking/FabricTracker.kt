@@ -4,57 +4,58 @@
 
 package io.explod.organizer.service.tracking
 
+import android.content.Context
 import android.util.Log.getStackTraceString
+import com.crashlytics.android.Crashlytics
+import com.crashlytics.android.answers.Answers
+import com.crashlytics.android.answers.CustomEvent
+import io.reactivex.Completable
+import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.BehaviorSubject
 
 /**
  * A tracker that reports to Crashlytics and Answers
  */
 class FabricTracker : Tracker {
 
-    private val initializedTracker: io.reactivex.subjects.BehaviorSubject<InitializedFabricTracker> = io.reactivex.subjects.BehaviorSubject.create()
+    private val initializedTracker: BehaviorSubject<Tracker> = BehaviorSubject.create()
 
-    override fun initialize(context: android.content.Context): io.reactivex.Completable {
-        return io.reactivex.Completable.fromCallable { io.fabric.sdk.android.Fabric.with(context, com.crashlytics.android.Crashlytics(), com.crashlytics.android.answers.Answers()) }
-                .doOnComplete { initializedTracker.onNext(io.explod.organizer.service.tracking.InitializedFabricTracker()) }
-                .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+    override fun initialize(context: Context): Completable {
+        return Completable.fromCallable { io.fabric.sdk.android.Fabric.with(context, Crashlytics(), Answers()) }
+                .doOnComplete { initializedTracker.onNext(InitializedFabricTracker()) }
+                .subscribeOn(Schedulers.io())
+    }
+
+    /**
+     * Defer execution of actual tracking until the tracker has actually been initialized
+     */
+    private inline fun whenTrackerIsReady(crossinline action: (tracker: Tracker) -> Unit) {
+        initializedTracker
+                .take(1)
+                .subscribeBy(onNext = { action(it) })
     }
 
     override fun event(action: String, properties: Map<String, Any>?) {
-        // defer execution until we have initialized
-        initializedTracker
-                .take(1)
-                .subscribe(
-                        { tracker -> tracker.event(action, properties) }
-                )
+        whenTrackerIsReady { it.event(action, properties) }
     }
 
     override fun recordException(level: Int, t: Throwable) {
-        // defer execution until we have initialized
-        initializedTracker
-                .take(1)
-                .subscribe(
-                        { tracker -> tracker.recordException(level, t) }
-                )
-
+        whenTrackerIsReady { it.recordException(level, t) }
     }
 
     override fun log(level: Int, tag: String, message: String, t: Throwable?) {
-        // defer execution until we have initialized
-        initializedTracker
-                .take(1)
-                .subscribe(
-                        { tracker -> tracker.log(level, tag, message, t) }
-                )
+        whenTrackerIsReady { it.log(level, tag, message, t) }
     }
 
 }
 
 private class InitializedFabricTracker : Tracker {
 
-    override fun initialize(context: android.content.Context): io.reactivex.Completable = io.reactivex.Completable.complete()
+    override fun initialize(context: android.content.Context): Completable = Completable.complete()
 
     override fun event(action: String, properties: Map<String, Any>?) {
-        val event = com.crashlytics.android.answers.CustomEvent(action)
+        val event = CustomEvent(action)
         properties?.forEach { x ->
             val key = x.key
             val value = x.value
@@ -63,15 +64,15 @@ private class InitializedFabricTracker : Tracker {
                 else -> event.putCustomAttribute(key, value.toString())
             }
         }
-        com.crashlytics.android.answers.Answers.getInstance().logCustom(event)
+        Answers.getInstance().logCustom(event)
     }
 
     override fun recordException(level: Int, t: Throwable) {
-        com.crashlytics.android.Crashlytics.logException(t)
+        Crashlytics.logException(t)
     }
 
     override fun log(level: Int, tag: String, message: String, t: Throwable?) {
-        com.crashlytics.android.Crashlytics.log(level, tag, message + if (t == null) "" else "\n" + getStackTraceString(t))
+        Crashlytics.log(level, tag, message + if (t == null) "" else "\n" + getStackTraceString(t))
     }
 
 }
