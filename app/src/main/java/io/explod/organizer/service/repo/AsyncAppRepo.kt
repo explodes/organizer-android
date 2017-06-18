@@ -1,6 +1,7 @@
 package io.explod.organizer.service.repo
 
 import android.arch.lifecycle.LiveData
+import android.content.Context
 import android.net.Uri
 import io.explod.arch.data.Category
 import io.explod.arch.data.Item
@@ -49,5 +50,7 @@ class AsyncAppRepo {
     fun createItem(categoryId: Long, name: String, rating: Int = -1, photo: Uri? = null): Single<Item> = asSingle { synchronously.createItem(categoryId = categoryId, name = name, rating = rating, photo = photo) }
     fun updateItem(item: Item) = asCompletable { synchronously.updateItem(item) }
     fun deleteItem(itemId: Long) = asCompletable { synchronously.deleteItem(itemId) }
+
+    fun downloadPhotoForItem(context: Context, item: Item, source: Uri): Completable = asCompletable { synchronously.downloadPhotoForItem(context, item, source) }
 
 }

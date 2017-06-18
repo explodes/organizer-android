@@ -1,10 +1,12 @@
 package io.explod.organizer.service.repo
 
 import android.arch.lifecycle.LiveData
+import android.content.Context
 import android.net.Uri
 import io.explod.arch.data.Category
 import io.explod.arch.data.Item
 import io.explod.organizer.service.database.CategoryStats
+import java.io.IOException
 
 interface AppRepo {
 
@@ -61,6 +63,12 @@ interface AppRepo {
      * Delete an Item
      */
     fun deleteItem(itemId: Long)
+
+    /**
+     * Download a photo and save the new Uri to the Item
+     */
+    @Throws(IOException::class)
+    fun downloadPhotoForItem(context: Context, item: Item, source: Uri)
 
 }
 

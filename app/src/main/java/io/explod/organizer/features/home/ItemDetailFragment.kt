@@ -1,24 +1,32 @@
 package io.explod.organizer.features.home
 
+import android.app.Activity
 import android.arch.lifecycle.Observer
+import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.support.annotation.StringRes
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.res.ResourcesCompat
 import android.support.v4.graphics.drawable.DrawableCompat
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
+import android.widget.ImageView
 import android.widget.RatingBar
 import io.explod.arch.data.Item
+import io.explod.arch.data.hasPhoto
 import io.explod.organizer.R
 import io.explod.organizer.extensions.args
 import io.explod.organizer.extensions.getModelWithFactory
 import io.explod.organizer.extensions.mainActivity
+import io.explod.organizer.extensions.showSnackbar
 import io.explod.organizer.features.common.BaseFragment
 import io.explod.organizer.features.common.ConfirmationDialog
 import io.explod.organizer.injection.ObjectGraph.injector
+import io.explod.organizer.service.images.ImageLoader
 import io.explod.organizer.service.tracking.LevelE
+import io.explod.organizer.service.tracking.LevelW
 import io.explod.organizer.service.tracking.LoggedException
 import io.explod.organizer.service.tracking.Tracker
 import io.reactivex.BackpressureStrategy
@@ -40,13 +48,20 @@ class ItemDetailFragment : BaseFragment() {
             return frag
         }
 
+        private val TAG = ItemDetailFragment::class.java.simpleName
+
         private const val ARG_ITEM_ID = "itemId"
 
         private const val DEBOUNCE_NAME_CHANGE_MILLIS = 2_400L
+
+        private const val REQUEST_SELECT_IMAGE = 0x01
     }
 
     @Inject
     lateinit var tracker: Tracker
+
+    @Inject
+    lateinit var imageLoader: ImageLoader
 
     val itemDetailModel by getModelWithFactory(ItemDetailViewModel::class, { ItemDetailViewModel.Factory(args.getLong(ARG_ITEM_ID)) })
 
@@ -86,6 +101,10 @@ class ItemDetailFragment : BaseFragment() {
             }
 
         })
+
+        image_photo.setOnClickListener {
+            selectPhotoForItem()
+        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -126,6 +145,35 @@ class ItemDetailFragment : BaseFragment() {
         return false
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
+        super.onActivityResult(requestCode, resultCode, intent)
+        if (requestCode == REQUEST_SELECT_IMAGE) {
+            onImageSelected(intent, resultCode == Activity.RESULT_OK)
+        }
+    }
+
+    fun onImageSelected(intent: Intent?, ok: Boolean) {
+        val context = this.context ?: return
+        val item = this.item ?: return
+        if (!ok || intent == null || intent.data == null) {
+            snackbarWithSelectPhotoRetry(R.string.item_detail_select_image_cancelled)
+        } else {
+            itemDetailModel.downloadPhotoForItem(context, item, intent.data)
+                    .compose(bindToLifecycle<Any>())
+                    .subscribeBy(onError = {
+                        tracker.log(LevelW, TAG, "error downloading photo", it)
+                        snackbarWithSelectPhotoRetry(R.string.item_detail_select_image_download_error)
+                    })
+        }
+
+    }
+
+    fun snackbarWithSelectPhotoRetry(@StringRes message: Int) {
+        mainActivity?.showSnackbar(message, actionRes = R.string.item_detail_select_image_retry, action = {
+            selectPhotoForItem()
+        })
+    }
+
     fun onItem(item: Item?) {
         if (item == null) return
         this.item = item
@@ -143,6 +191,8 @@ class ItemDetailFragment : BaseFragment() {
             -1 -> 0f
             else -> item.rating.toFloat()
         }
+
+        loadPhoto(item)
     }
 
     fun onRating(rating: Float) {
@@ -193,23 +243,50 @@ class ItemDetailFragment : BaseFragment() {
         val item = this.item ?: return
         val context = this.context ?: return
 
-        val hasPhoto = !item.photoUri.isBlank()
-        val confirmation = if (hasPhoto) {
+        val confirmation = if (item.hasPhoto()) {
             R.string.item_detail_delete_item_confirmation_with_photo
         } else {
             R.string.item_detail_delete_item_confirmation
         }
 
         ConfirmationDialog.show(context, R.string.item_detail_delete_item, confirmation, {
-            tracker.event("itemDetailDeleteItemConfirm", mapOf("hasPhoto" to hasPhoto))
+            tracker.event("itemDetailDeleteItemConfirm", mapOf("hasPhoto" to item.hasPhoto()))
             deleteItem(item.id)
             fragmentManager?.popBackStack()
-        }, { tracker.event("itemDetailDeleteItemCancel", mapOf("hasPhoto" to hasPhoto)) })
+        }, { tracker.event("itemDetailDeleteItemCancel", mapOf("hasPhoto" to item.hasPhoto())) })
     }
 
     fun deleteItem(itemId: Long) {
         itemDetailModel.deleteItem(itemId)
                 .compose(bindToLifecycle<Any>())
                 .subscribeBy(onError = { tracker.recordException(LevelE, LoggedException("Unable to delete item", it)) })
+    }
+
+    fun loadPhoto(item: Item) {
+        val photoView = image_photo ?: return
+        if (item.hasPhoto()) {
+            photoView.scaleType = ImageView.ScaleType.FIT_CENTER
+            imageLoader.loadPath(item.photoUri, photoView)
+        } else {
+            photoView.scaleType = ImageView.ScaleType.CENTER_INSIDE
+            photoView.setImageResource(R.drawable.ic_add_photo_accent_128dp)
+
+        }
+    }
+
+    fun selectPhotoForItem() {
+        if (item == null) return
+
+        val getIntent = Intent(Intent.ACTION_GET_CONTENT)
+        getIntent.type = "image/*"
+
+        val pickIntent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        pickIntent.type = "image/*"
+
+        val chooserIntent = Intent.createChooser(getIntent, "Select Image")
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(pickIntent))
+
+        startActivityForResult(chooserIntent, REQUEST_SELECT_IMAGE)
+
     }
 }

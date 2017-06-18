@@ -74,3 +74,7 @@ class Item {
     }
 
 }
+
+fun Item.hasPhoto():Boolean {
+    return !photoUri.isBlank()
+}

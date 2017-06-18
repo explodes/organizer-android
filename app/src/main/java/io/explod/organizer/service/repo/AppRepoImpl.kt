@@ -1,21 +1,39 @@
 package io.explod.organizer.service.repo
 
 import android.arch.lifecycle.LiveData
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import io.explod.arch.data.AppDatabase
 import io.explod.arch.data.Category
 import io.explod.arch.data.Item
+import io.explod.arch.data.hasPhoto
+import io.explod.organizer.extensions.closeCleanly
 import io.explod.organizer.injection.ObjectGraph.injector
 import io.explod.organizer.service.database.CategoryStats
-import io.reactivex.schedulers.Schedulers
+import io.explod.organizer.service.tracking.LevelW
+import io.explod.organizer.service.tracking.Tracker
+import java.io.File
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import javax.inject.Inject
 
 class AppRepoImpl : AppRepo {
 
+    companion object {
+        private val TAG = AppRepoImpl::class.java.simpleName
+        private const val PHOTO_LOCATION = "photos"
+        private const val SCHEME_FILE = "file://"
+        private const val RESERVED_CHARS = "|\\?*<\":>+[]/'"
+    }
+
     @Inject
     lateinit var db: AppDatabase
 
-    val scheduler = Schedulers.io()
+    @Inject
+    lateinit var tracker: Tracker
 
     init {
         inject()
@@ -69,4 +87,73 @@ class AppRepoImpl : AppRepo {
         db.items().delete(itemId)
     }
 
+    @Throws(IOException::class)
+    override fun downloadPhotoForItem(context: Context, item: Item, source: Uri) {
+        val fileName = "${item.id}-${item.name}-${source.lastPathSegment}".filter { it !in RESERVED_CHARS }
+        val tempFile = File(context.filesDir.absolutePath + File.pathSeparator + PHOTO_LOCATION + File.pathSeparator + fileName)
+        val webpFile = File("${tempFile.absolutePath}.webp")
+        try {
+            copyUriToFile(context, source, tempFile)
+            convertToWebp(tempFile, webpFile)
+        } finally {
+            tempFile.delete()
+        }
+        item.deletePhotoIfExists()
+        item.photoUri = "$SCHEME_FILE${webpFile.absolutePath}"
+        updateItem(item)
+    }
+
+    private fun Item.deletePhotoIfExists() {
+        if (hasPhoto() && photoUri.startsWith(SCHEME_FILE)) {
+            val file = File(photoUri.substring(SCHEME_FILE.length))
+            if (file.delete()) {
+                photoUri = ""
+            } else {
+                tracker.log(LevelW, TAG, "Unable to delete old photo: ${file.absolutePath}")
+            }
+        }
+    }
+
+}
+
+
+@Throws(IOException::class)
+private fun copyUriToFile(context: Context, input: Uri, output: File) {
+    var inputStream: InputStream? = null
+    var outputStream: OutputStream? = null
+    try {
+        inputStream = context.contentResolver.openInputStream(input)
+        outputStream = output.outputStream()
+        copyStream(inputStream, outputStream)
+    } finally {
+        inputStream.closeCleanly()
+        outputStream.closeCleanly()
+    }
+}
+
+
+@Throws(IOException::class)
+private fun copyStream(input: InputStream, output: OutputStream) {
+    val buf = ByteArray(32768) // 32k
+    var bytesRead: Int
+    while (true) {
+        bytesRead = input.read(buf)
+        if (bytesRead == -1) break
+        output.write(buf, 0, bytesRead)
+    }
+    output.flush()
+}
+
+
+@Throws(IOException::class)
+private fun convertToWebp(input: File, output: File) {
+    val bm = BitmapFactory.decodeFile(input.absolutePath)
+    var outputStream: OutputStream? = null
+    try {
+        outputStream = output.outputStream()
+        bm.compress(Bitmap.CompressFormat.WEBP, 90, outputStream)
+        outputStream.flush()
+    } finally {
+        outputStream.closeCleanly()
+    }
 }
