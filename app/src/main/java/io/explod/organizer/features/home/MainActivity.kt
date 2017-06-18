@@ -11,7 +11,6 @@ import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import io.explod.arch.data.Category
 import io.explod.organizer.R
 import io.explod.organizer.extensions.getModel
 import io.explod.organizer.extensions.getResourceNameOrUnknown
@@ -146,8 +145,8 @@ class MainActivity : BaseActivity() {
         fun handleCategoryMenuClick(item: MenuItem) {
             tracker.event("navCategoryItemClick", mapOf("name" to "category", "title" to item.title))
             val tag = item.actionView?.tag ?: return
-            if (tag is Category) {
-                pushFragment(CategoryDetailFragment.new(tag.id))
+            if (tag is CategoryStats) {
+                pushFragment(CategoryDetailFragment.new(tag.category.id))
             }
         }
 
@@ -159,7 +158,7 @@ class MainActivity : BaseActivity() {
                     showCreateCategoryDialog()
                 }
                 R.id.nav_share -> {
-                    // todo(evan): open up Category view
+                    // todo(evan): open up share view
                     showSnackbar("todo: share somehow?")
                 }
                 R.id.nav_settings -> {
