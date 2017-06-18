@@ -1,9 +1,8 @@
 package io.explod.arch.data
 
-import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.*
-import android.support.annotation.VisibleForTesting
 import io.explod.organizer.service.database.CategoryStats
+import io.reactivex.Flowable
 
 @Dao
 interface CategoryDao {
@@ -28,18 +27,10 @@ interface CategoryDao {
     }
 
     @Query(QUERY_CATEGORY_STATS)
-    fun loadAllStats(): LiveData<List<CategoryStats>>
-
-    @VisibleForTesting
-    @Query(QUERY_CATEGORY_STATS)
-    fun loadAllStatsDirect(): List<CategoryStats>
+    fun getAllStats(): Flowable<List<CategoryStats>>
 
     @Query(QUERY_CATEGORY_BY_ID)
-    fun statsById(id: Long): LiveData<CategoryStats>
-
-    @VisibleForTesting
-    @Query(QUERY_CATEGORY_BY_ID)
-    fun statsByIdDirect(id: Long): CategoryStats
+    fun statsById(id: Long): Flowable<List<CategoryStats>> // until Maybe is supported in RxRoom
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(category: Category): Long
@@ -61,17 +52,10 @@ interface ItemDao {
     }
 
     @Query(QUERY_BY_CATEGORY_DESCENDING_BY_DATE)
-    fun byCategory(categoryId: Long): LiveData<List<Item>>
-
-    @Query(QUERY_BY_CATEGORY_DESCENDING_BY_DATE)
-    fun byCategoryDirect(categoryId: Long): List<Item>
-
-    @VisibleForTesting
-    @Query(QUERY_BY_CATEGORY_DESCENDING_BY_DATE)
-    fun byCategoryAsList(categoryId: Long): List<Item>
+    fun byCategory(categoryId: Long): Flowable<List<Item>>
 
     @Query(QUERY_BY_ID)
-    fun byId(id: Long): LiveData<Item>
+    fun byId(id: Long): Flowable<List<Item>> // until Maybe is supported in RxRoom
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(item: Item): Long

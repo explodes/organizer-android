@@ -39,8 +39,7 @@ abstract class ListAdapter<T, VH : RecyclerView.ViewHolder> : RecyclerView.Adapt
 
     operator fun get(position: Int): T? {
         val users = this.items ?: return null
-        if (position >= 0 && position < users.size) return users[position]
-        return null
+        return users.getOrNull(position)
     }
 
     override fun getItemCount(): Int {

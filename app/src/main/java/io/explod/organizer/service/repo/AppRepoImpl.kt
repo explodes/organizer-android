@@ -1,10 +1,10 @@
 package io.explod.organizer.service.repo
 
-import android.arch.lifecycle.LiveData
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import com.fernandocejas.arrow.optional.Optional
 import io.explod.arch.data.AppDatabase
 import io.explod.arch.data.Category
 import io.explod.arch.data.Item
@@ -14,6 +14,7 @@ import io.explod.organizer.injection.ObjectGraph.injector
 import io.explod.organizer.service.database.CategoryStats
 import io.explod.organizer.service.tracking.LevelW
 import io.explod.organizer.service.tracking.Tracker
+import io.reactivex.Flowable
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
@@ -47,12 +48,17 @@ class AppRepoImpl : AppRepo {
         injector.inject(this)
     }
 
-    override fun getAllCategoryStats(): LiveData<List<CategoryStats>> {
-        return db.categories().loadAllStats()
+    private fun <T> firstInList(list: List<T>): Optional<T> {
+        return Optional.fromNullable(list.getOrNull(0))
     }
 
-    override fun getCategoryStatsById(categoryId: Long): LiveData<CategoryStats> {
+    override fun getAllCategoryStats(): Flowable<List<CategoryStats>> {
+        return db.categories().getAllStats()
+    }
+
+    override fun getCategoryStatsById(categoryId: Long): Flowable<Optional<CategoryStats>> {
         return db.categories().statsById(categoryId)
+                .map { list -> firstInList(list) }
     }
 
     override fun createCategory(name: String): Category {
@@ -66,18 +72,19 @@ class AppRepoImpl : AppRepo {
     }
 
     override fun deleteCategory(category: Category) {
-        db.items().byCategoryDirect(category.id).forEach {
+        db.items().byCategory(category.id).firstElement().blockingGet()?.forEach {
             it.deletePhotoIfExists()
         }
         db.categories().delete(category)
     }
 
-    override fun getAllItemsForCategory(categoryId: Long): LiveData<List<Item>> {
+    override fun getAllItemsForCategory(categoryId: Long): Flowable<List<Item>> {
         return db.items().byCategory(categoryId)
     }
 
-    override fun getItemById(itemId: Long): LiveData<Item> {
+    override fun getItemById(itemId: Long): Flowable<Optional<Item>> {
         return db.items().byId(itemId)
+                .map { list -> firstInList(list) }
     }
 
     override fun createItem(categoryId: Long, name: String, rating: Int, photo: Uri?): Item {

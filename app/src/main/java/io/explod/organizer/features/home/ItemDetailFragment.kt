@@ -1,7 +1,6 @@
 package io.explod.organizer.features.home
 
 import android.app.Activity
-import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.os.Bundle
 import android.support.annotation.StringRes
@@ -11,6 +10,7 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
+import com.fernandocejas.arrow.optional.Optional
 import io.explod.arch.data.Item
 import io.explod.arch.data.hasPhoto
 import io.explod.organizer.R
@@ -102,9 +102,12 @@ class ItemDetailFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        itemDetailModel.item.observe(this, Observer<Item> {
-            onItem(it)
-        })
+        itemDetailModel.item
+                .compose(bindToLifecycle())
+                .subscribeBy(
+                        onNext = { onItem(it) },
+                        onError = { tracker.log(LevelE, TAG, "Unable to observe item", it) }
+                )
     }
 
     /**
@@ -183,8 +186,9 @@ class ItemDetailFragment : BaseFragment() {
      *
      * Save the latest item for updating.
      */
-    fun onItem(item: Item?) {
-        if (item == null) return
+    fun onItem(optionalItem: Optional<Item>) {
+        if (!optionalItem.isPresent) return
+        val item = optionalItem.get()
         this.item = item
 
         setTextIfNotEditing(text_name, nameChangeTracker, item.name)

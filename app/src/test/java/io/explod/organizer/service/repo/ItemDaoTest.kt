@@ -18,7 +18,7 @@ class ItemDaoTest : BaseRoboTest() {
     }
 
     @Test
-    fun byCategoryAsList() {
+    fun byCategory() {
         // byCategoryAsList should return all Items that
         // belong to a certain Category in createdDate-DESC order
         val all = offload {
@@ -33,7 +33,7 @@ class ItemDaoTest : BaseRoboTest() {
             items.insert(Item.new(categoryId2, "item22"))
             items.insert(Item.new(categoryId2, "item23"))
 
-            items.byCategoryAsList(categoryId2)
+            items.byCategory(categoryId2).blockingFirst()
         }
 
         Assert.assertNotNull(all)

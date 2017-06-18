@@ -93,6 +93,7 @@ dependencies {
 
     // Room ORM
     implementation 'android.arch.persistence.room:runtime:' + rootProject.archRoomVersion
+    implementation 'android.arch.persistence.room:rxjava2:' + rootProject.archRoomVersion
     annotationProcessor "android.arch.persistence.room:compiler:" + rootProject.archRoomVersion
     kapt "android.arch.persistence.room:compiler:" + rootProject.archRoomVersion
 

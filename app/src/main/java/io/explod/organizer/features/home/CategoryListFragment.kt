@@ -1,6 +1,5 @@
 package io.explod.organizer.features.home
 
-import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -18,7 +17,9 @@ import io.explod.organizer.features.common.ListAdapter
 import io.explod.organizer.features.common.ListDiffCallback
 import io.explod.organizer.injection.ObjectGraph.injector
 import io.explod.organizer.service.database.CategoryStats
+import io.explod.organizer.service.tracking.LevelE
 import io.explod.organizer.service.tracking.Tracker
+import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.android.synthetic.main.fragment_category_list.*
 import kotlinx.android.synthetic.main.stub_category_list.*
 import kotlinx.android.synthetic.main.stub_category_list_empty.*
@@ -34,6 +35,8 @@ class CategoryListFragment : BaseFragment(), CategoryAdapter.Listener {
     companion object {
 
         fun new(): CategoryListFragment = CategoryListFragment()
+
+        private val TAG = CategoryListFragment::class.java.simpleName
 
     }
 
@@ -69,7 +72,12 @@ class CategoryListFragment : BaseFragment(), CategoryAdapter.Listener {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        categoriesModel.categories.observe(this, Observer<List<CategoryStats>> { onCategories(it) })
+        categoriesModel.categories
+                .compose(bindToLifecycle())
+                .subscribeBy(
+                        onNext = { onCategories(it) },
+                        onError = { tracker.log(LevelE, TAG, "Unable to observe categories", it) }
+                )
     }
 
     override fun onCategoryClick(category: CategoryStats) {

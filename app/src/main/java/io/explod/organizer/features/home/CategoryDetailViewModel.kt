@@ -1,16 +1,17 @@
 package io.explod.organizer.features.home
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MediatorLiveData
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import io.explod.arch.data.Category
 import io.explod.arch.data.Item
+import io.explod.organizer.extensions.observeOnMain
 import io.explod.organizer.injection.ObjectGraph.injector
 import io.explod.organizer.service.database.CategoryStats
 import io.explod.organizer.service.repo.AsyncAppRepo
 import io.reactivex.Completable
+import io.reactivex.Flowable
 import io.reactivex.Single
+import io.reactivex.functions.BiFunction
 import javax.inject.Inject
 
 
@@ -29,7 +30,7 @@ class CategoryDetailViewModel(val categoryId: Long) : ViewModel() {
     @Inject
     lateinit var repo: AsyncAppRepo
 
-    val categoryItems: LiveData<List<CategoryItem>> by lazy(LazyThreadSafetyMode.NONE) { CategoryItemMediator(categoryId) }
+    val categoryItems: Flowable<List<CategoryItem>> by lazy(LazyThreadSafetyMode.NONE) { CategoryItemMediator(categoryId).toFlowable().observeOnMain() }
 
     init {
         inject()
@@ -39,9 +40,9 @@ class CategoryDetailViewModel(val categoryId: Long) : ViewModel() {
         injector.inject(this)
     }
 
-    fun createItem(categoryId: Long, name: String): Single<Item> = repo.createItem(categoryId, name)
+    fun createItem(categoryId: Long, name: String): Single<Item> = repo.createItem(categoryId, name).observeOnMain()
 
-    fun deleteCategory(category: Category): Completable = repo.deleteCategory(category)
+    fun deleteCategory(category: Category): Completable = repo.deleteCategory(category).observeOnMain()
 
     /**
      * Factory used to create a new CategoryDetailViewModel for a Category with a given ID
@@ -55,25 +56,10 @@ class CategoryDetailViewModel(val categoryId: Long) : ViewModel() {
     }
 
     /**
-     * CategoryItemMediator is a mediator between CategoryStat and Item LiveData.
-     * Results are zipped into a list of CategoryItems with the first entry being a Category-only
-     * CategoryItem.
+     * CategoryItemMediator zips a Category and its Items into a list of CategoryItems with the
+     * first entry being a Category-only CategoryItem.
      */
-    inner class CategoryItemMediator(val categoryId: Long) : MediatorLiveData<List<CategoryItem>>() {
-
-        var stats: CategoryStats? = null
-        var items: List<Item>? = null
-
-        init {
-            addSource(repo.getCategoryStatsById(categoryId)) {
-                this.stats = it
-                updateValue()
-            }
-            addSource(repo.getAllItemsForCategory(categoryId)) {
-                this.items = it
-                updateValue()
-            }
-        }
+    inner class CategoryItemMediator(val categoryId: Long) {
 
         /**
          * Zip our results into a list of CategoryItems with the first entry being a Category-only
@@ -81,21 +67,20 @@ class CategoryDetailViewModel(val categoryId: Long) : ViewModel() {
          * If we are missing either a Category or Items, nothing is zipped and this LiveData's value
          * is null.
          */
-        @Synchronized
-        private fun updateValue() {
-            val items: List<Item>? = this.items
-            val stats: CategoryStats? = this.stats
+        internal fun toFlowable(): Flowable<List<CategoryItem>> {
+            val category: Flowable<CategoryStats> = repo.getCategoryStatsById(categoryId).filter { it.isPresent }.map { it.get() }
+            val items: Flowable<List<Item>> = repo.getAllItemsForCategory(categoryId)
+            val zipper = BiFunction<CategoryStats, List<Item>, List<CategoryItem>> { stats, items -> zip(stats, items) }
+            return Flowable.combineLatest(category, items, zipper)
+        }
 
-            if (items == null || stats == null) {
-                postValue(null)
-            } else {
-                val zipped = ArrayList<CategoryItem>(items.size + 1)
-                zipped.add(CategoryItem(stats, null))
-                items.forEach {
-                    zipped.add(CategoryItem(stats, it))
-                }
-                postValue(zipped)
+        private fun zip(stats: CategoryStats, items: List<Item>): List<CategoryItem> {
+            val zipped = ArrayList<CategoryItem>(items.size + 1)
+            zipped.add(CategoryItem(stats, null))
+            items.forEach {
+                zipped.add(CategoryItem(stats, it))
             }
+            return zipped
         }
     }
 }

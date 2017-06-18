@@ -3,10 +3,9 @@ package io.explod.organizer.service.repo
 import io.explod.arch.data.Category
 import io.explod.arch.data.Item
 import meta.BaseRoboTest
-import meta.first
+import meta.getOrNull
 import org.junit.Assert.*
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 class AppRepoImplTest : BaseRoboTest() {
@@ -18,12 +17,11 @@ class AppRepoImplTest : BaseRoboTest() {
         repo = AppRepoImpl()
     }
 
-    @Ignore("(evan) live data problems")
     @Test
     fun getAllCategoriesWithStats() {
         // getAllCategoryStats should return all Categories
         // in createdDate-DESC order
-        offloadWork {
+        val categories = offload {
             val cat1 = repo.db.categories().insert(Category.new("cat1"))
             val cat2 = repo.db.categories().insert(Category.new("cat2"))
             val cat3 = repo.db.categories().insert(Category.new("cat3"))
@@ -44,9 +42,9 @@ class AppRepoImplTest : BaseRoboTest() {
             repo.db.items().insert(Item.new(cat3, "item35", rating = 3))
             repo.db.items().insert(Item.new(cat3, "item36", rating = 5))
 
-        }
+            repo.getAllCategoryStats().blockingFirst()
 
-        val categories = repo.getAllCategoryStats().first { it != null }
+        }
 
         assertNotNull(categories)
         assertEquals(3, categories!!.size)
@@ -75,14 +73,13 @@ class AppRepoImplTest : BaseRoboTest() {
         assertNotNull(existing)
     }
 
-    @Ignore("(evan) live data problems")
     @Test
     fun getCategoryById_doesntExist() {
         // getCategoryStatsById should not give us back a Category
         // if it doesnt exist
-        val data = offload { repo.getCategoryStatsById(Long.MIN_VALUE) }
-
-        val doesNotExist = data!!.first()
+        val doesNotExist = offload {
+            repo.getCategoryStatsById(Long.MIN_VALUE).blockingFirst().getOrNull()
+        }
 
         assertNull(doesNotExist)
     }
@@ -91,11 +88,16 @@ class AppRepoImplTest : BaseRoboTest() {
     fun createCategory() {
         // createCategory should create a Category and
         // have an assigned ID
-        val category = offload { repo.createCategory("cat1") }!!
+        val category = offload {
+            repo.createCategory("cat1")
+        }
 
-        assertNotEquals(0, category.id)
+        assertNotNull(category)
+        assertNotEquals(0, category!!.id)
 
-        val existing = offload { repo.getCategoryStatsById(category.id) }
+        val existing = offload {
+            repo.getCategoryStatsById(category.id).blockingFirst().getOrNull()
+        }
 
         assertNotNull(existing)
     }
@@ -114,29 +116,25 @@ class AppRepoImplTest : BaseRoboTest() {
         assertEquals("cat2", category!!.name)
     }
 
-    @Ignore("(evan) live data problems")
     @Test
     fun deleteCategory() {
         // deleteCategory should remove a Category from the database
-        val data = offload {
+        val category = offload {
             val new = repo.createCategory("cat1")
-            val stats = repo.getCategoryStatsById(new.id).first { it != null }!!
+            val stats = repo.getCategoryStatsById(new.id).blockingFirst().get()
             repo.deleteCategory(stats.category)
-            repo.getCategoryStatsById(new.id)
+            repo.getCategoryStatsById(new.id).blockingFirst().getOrNull()
         }
-
-        val category = data!!.first()
 
         assertNull(category)
     }
 
 
-    @Ignore("(evan) live data problems")
     @Test
     fun getAllItemsForCategory() {
         // getAllItemsForCategory should return all Items that
         // belong to a certain Category
-        val categoryId = offload {
+        val items = offload {
             val categoryId1 = repo.db.categories().insert(Category.new("cat1"))
             if (categoryId1 <= 0) fail("Unable to insert category")
             repo.db.items().insert(Item.new(categoryId1, "item11"))
@@ -148,10 +146,8 @@ class AppRepoImplTest : BaseRoboTest() {
             repo.db.items().insert(Item.new(categoryId2, "item22"))
             repo.db.items().insert(Item.new(categoryId2, "item23"))
 
-            categoryId2
-        }!!
-
-        val items = repo.getAllItemsForCategory(categoryId).first { it != null }
+            repo.getAllItemsForCategory(categoryId2).blockingFirst()
+        }
 
         assertNotNull(items)
         assertEquals(3, items!!.size)
@@ -173,13 +169,12 @@ class AppRepoImplTest : BaseRoboTest() {
         assertNotNull(exists)
     }
 
-    @Ignore("(evan) live data problems")
     @Test
     fun getItemById_doesntExist() {
         // getItemById should return null if it does not exist
-        val data = offload { repo.getItemById(Long.MIN_VALUE) }
-
-        val doesNotExist = data!!.first()
+        val doesNotExist = offload {
+            repo.getItemById(Long.MIN_VALUE).blockingFirst().getOrNull()
+        }
 
         assertNull(doesNotExist)
     }
@@ -222,21 +217,18 @@ class AppRepoImplTest : BaseRoboTest() {
         assertEquals("item2", item!!.name)
     }
 
-    @Ignore("(evan) live data problems")
     @Test
     fun deleteItem() {
         // deleteItem should remove an Item from the database
-        val data = offload {
+        val item = offload {
             val categoryId = repo.db.categories().insert(Category.new("cat1"))
             if (categoryId <= 0) fail("Unable to insert category")
 
             val new = repo.createItem(categoryId, "item1")
-            val item = repo.getItemById(new.id).first { it != null }!!
+            val item = repo.getItemById(new.id).blockingFirst().get()
             repo.deleteItem(item)
-            repo.getItemById(new.id)
+            repo.getItemById(new.id).blockingFirst().getOrNull()
         }
-
-        val item = data!!.first()
 
         assertNull(item)
     }

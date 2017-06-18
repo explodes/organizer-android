@@ -1,11 +1,12 @@
 package io.explod.organizer.service.repo
 
-import android.arch.lifecycle.LiveData
 import android.content.Context
 import android.net.Uri
+import com.fernandocejas.arrow.optional.Optional
 import io.explod.arch.data.Category
 import io.explod.arch.data.Item
 import io.explod.organizer.service.database.CategoryStats
+import io.reactivex.Flowable
 import java.io.IOException
 
 /**
@@ -21,12 +22,12 @@ interface AppRepo {
     /**
      * Get all Categories, with stats, sorted by createdDate descending
      */
-    fun getAllCategoryStats(): LiveData<List<CategoryStats>>
+    fun getAllCategoryStats(): Flowable<List<CategoryStats>>
 
     /**
      * Look for a Category by id
      */
-    fun getCategoryStatsById(categoryId: Long): LiveData<CategoryStats>
+    fun getCategoryStatsById(categoryId: Long): Flowable<Optional<CategoryStats>>
 
     /**
      * Create a new Category
@@ -48,12 +49,12 @@ interface AppRepo {
     /**
      * Get all Items for a category, sorted by createdDate descending
      */
-    fun getAllItemsForCategory(categoryId: Long): LiveData<List<Item>>
+    fun getAllItemsForCategory(categoryId: Long): Flowable<List<Item>>
 
     /**
      * Look for an Item by id
      */
-    fun getItemById(itemId: Long): LiveData<Item>
+    fun getItemById(itemId: Long): Flowable<Optional<Item>>
 
     /**
      * Create a new Item

@@ -1,6 +1,5 @@
 package io.explod.organizer.features.home
 
-import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.design.widget.Snackbar
@@ -32,6 +31,10 @@ import javax.inject.Inject
  * MainActivity is also responsible for building and controlling the actions in the NavDrawer.
  */
 class MainActivity : BaseActivity() {
+
+    companion object {
+        private val TAG = MainActivity::class.java.simpleName
+    }
 
     @Inject
     lateinit var tracker: Tracker
@@ -68,7 +71,12 @@ class MainActivity : BaseActivity() {
                     .commit()
         }
 
-        categoryModel.categories.observe(this, Observer<List<CategoryStats>> { onCategories(it) })
+        categoryModel.categories
+                .compose(bindToLifecycle())
+                .subscribeBy(
+                        onNext = { onCategories(it) },
+                        onError = { tracker.log(LevelE, TAG, "Unable to observe categories", it) }
+                )
     }
 
     /**

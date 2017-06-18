@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProvider
 import android.content.Context
 import android.net.Uri
 import io.explod.arch.data.Item
+import io.explod.organizer.extensions.observeOnMain
 import io.explod.organizer.injection.ObjectGraph.injector
 import io.explod.organizer.service.repo.AsyncAppRepo
 import io.reactivex.Completable
@@ -20,7 +21,7 @@ class ItemDetailViewModel(val itemId: Long) : ViewModel() {
     @Inject
     lateinit var repo: AsyncAppRepo
 
-    val item by lazy(LazyThreadSafetyMode.NONE) { repo.getItemById(itemId) }
+    val item by lazy(LazyThreadSafetyMode.NONE) { repo.getItemById(itemId).observeOnMain() }
 
     init {
         inject()
@@ -30,11 +31,11 @@ class ItemDetailViewModel(val itemId: Long) : ViewModel() {
         injector.inject(this)
     }
 
-    fun saveItem(item: Item): Completable = repo.updateItem(item)
+    fun saveItem(item: Item): Completable = repo.updateItem(item).observeOnMain()
 
-    fun deleteItem(item: Item): Completable = repo.deleteItem(item)
+    fun deleteItem(item: Item): Completable = repo.deleteItem(item).observeOnMain()
 
-    fun downloadPhotoForItem(context: Context, item: Item, source: Uri) = repo.downloadPhotoForItem(context, item, source)
+    fun downloadPhotoForItem(context: Context, item: Item, source: Uri) = repo.downloadPhotoForItem(context, item, source).observeOnMain()
 
     /**
      * Factory used to create a new ItemDetailViewModel for an Item with a given ID

@@ -1,6 +1,5 @@
 package io.explod.organizer.features.home
 
-import android.arch.lifecycle.Observer
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.util.DiffUtil
@@ -40,6 +39,8 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
             return frag
         }
 
+        private val TAG = CategoryDetailFragment::class.java.simpleName
+
         private const val ARG_CATEGORY_ID = "categoryId"
     }
 
@@ -78,9 +79,12 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        categoryDetailModel.categoryItems.observe(this, Observer<List<CategoryItem>> {
-            onCategoryItems(it)
-        })
+        categoryDetailModel.categoryItems
+                .compose(bindToLifecycle())
+                .subscribeBy(
+                        onNext = { onCategoryItems(it) },
+                        onError = { tracker.log(LevelE, TAG, "Unable to observe category items", it) }
+                )
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

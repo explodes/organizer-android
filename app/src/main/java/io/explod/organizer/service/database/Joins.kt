@@ -24,4 +24,7 @@ class CategoryStats {
             else -> totalRating.toFloat() / numRated.toFloat()
         }
 
+    override fun toString(): String {
+        return "CategoryStats(category=$category, numItems=$numItems, numRated=$numRated, totalRating=$totalRating)"
+    }
 }
