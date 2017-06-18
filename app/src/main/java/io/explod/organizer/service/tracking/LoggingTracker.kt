@@ -14,7 +14,7 @@ import io.reactivex.Completable
 class LoggingTracker : Tracker {
 
     companion object {
-        private val TRACKER_TAG = "Tracker"
+        private const val TRACKER_TAG = "Tracker"
     }
 
     override fun initialize(context: Context): Completable = Completable.complete()

@@ -41,9 +41,9 @@ class ItemDetailFragment : BaseFragment() {
             return frag
         }
 
-        private val ARG_ITEM_ID = "itemId"
+        private const val ARG_ITEM_ID = "itemId"
 
-        private val DEBOUNCE_NAME_CHANGE_MILLIS = 2_400L
+        private const val DEBOUNCE_NAME_CHANGE_MILLIS = 2_400L
     }
 
     @Inject

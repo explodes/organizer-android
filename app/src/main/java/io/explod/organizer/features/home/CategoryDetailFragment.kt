@@ -39,7 +39,7 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
             return frag
         }
 
-        private val ARG_CATEGORY_ID = "categoryId"
+        private const val ARG_CATEGORY_ID = "categoryId"
     }
 
     @Inject
@@ -125,12 +125,12 @@ class CategoryItemAdapter : ListAdapter<CategoryItem, CategoryItemAdapter.Catego
     }
 
     companion object {
-        private val TYPE_INVALID = -1
-        private val TYPE_CATEGORY = 0
-        private val TYPE_ITEM = 1
+        private const val TYPE_INVALID = -1
+        private const val TYPE_CATEGORY = 0
+        private const val TYPE_ITEM = 1
 
-        private val ID_MASK_CATEGORY = 0x800000000000000L
-        private val ID_MASK_ITEM = 0x4000000000000000L
+        private const val ID_MASK_CATEGORY = 0x800000000000000L
+        private const val ID_MASK_ITEM = 0x4000000000000000L
     }
 
     var listener: Listener? = null

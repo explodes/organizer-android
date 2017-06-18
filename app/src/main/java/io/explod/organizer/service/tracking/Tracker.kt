@@ -4,11 +4,6 @@
 
 package io.explod.organizer.service.tracking
 
-import android.content.Context
-import android.support.annotation.IntDef
-import android.util.Log
-import io.reactivex.Completable
-
 const val LevelV = android.util.Log.VERBOSE
 const val LevelD = android.util.Log.DEBUG
 const val LevelI = android.util.Log.INFO

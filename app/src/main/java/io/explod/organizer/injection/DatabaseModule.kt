@@ -12,7 +12,7 @@ import javax.inject.Singleton
 class DatabaseModule {
 
     companion object {
-        private val DB_NAME = "app.db"
+        private const val DB_NAME = "app.db"
     }
 
     @Provides

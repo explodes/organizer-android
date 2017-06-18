@@ -23,5 +23,5 @@ class CategoryStats {
             0 -> 0f
             else -> totalRating.toFloat() / numRated.toFloat()
         }
-    
+
 }
