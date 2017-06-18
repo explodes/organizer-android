@@ -119,8 +119,8 @@ class CategoryItemAdapter : ListAdapter<CategoryItem, CategoryItemAdapter.Catego
         private val TYPE_CATEGORY = 0
         private val TYPE_ITEM = 1
 
-        private val ID_MASK_CATEGORY = 0x7000000000000000L
-        private val ID_MASK_ITEM = 0x0700000000000000L
+        private val ID_MASK_CATEGORY = 0x800000000000000L
+        private val ID_MASK_ITEM = 0x4000000000000000L
     }
 
     var listener: Listener? = null
