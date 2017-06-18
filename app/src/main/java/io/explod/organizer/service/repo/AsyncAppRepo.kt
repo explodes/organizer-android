@@ -37,8 +37,8 @@ class AsyncAppRepo {
 
     /* Categories */
 
-    fun getAllCategories(): LiveData<List<CategoryStats>> = synchronously.getAllCategories()
-    fun getCategoryById(categoryId: Long): LiveData<CategoryStats> = synchronously.getCategoryById(categoryId)
+    fun getAllCategoryStats(): LiveData<List<CategoryStats>> = synchronously.getAllCategoryStats()
+    fun getCategoryStatsById(categoryId: Long): LiveData<CategoryStats> = synchronously.getCategoryStatsById(categoryId)
     fun createCategory(name: String): Single<Category> = asSingle { synchronously.createCategory(name) }
     fun updateCategory(category: Category) = asCompletable { synchronously.updateCategory(category) }
     fun deleteCategory(category: Category) = asCompletable { synchronously.deleteCategory(category) }

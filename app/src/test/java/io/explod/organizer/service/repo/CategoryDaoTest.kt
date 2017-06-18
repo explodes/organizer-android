@@ -21,27 +21,8 @@ class CategoryDaoTest : BaseRoboTest() {
     }
 
     @Test
-    fun loadAllAsList() {
-        // loadAllAsList should return all Categories
-        // in createdDate-DESC order
-        val all = offload {
-            categories.insert(Category.new("cat1"))
-            categories.insert(Category.new("cat2"))
-            categories.insert(Category.new("cat3"))
-
-            categories.loadAllAsList()
-        }
-
-        Assert.assertNotNull(all)
-        Assert.assertEquals(3, all!!.size)
-        Assert.assertEquals("cat3", all[0].name)
-        Assert.assertEquals("cat2", all[1].name)
-        Assert.assertEquals("cat1", all[2].name)
-    }
-
-    @Test
-    fun loadAllWithStatsAsList() {
-        // loadAllWithStatsAsList should return all Categories
+    fun loadAllStatsDirect() {
+        // loadAllStatsDirect should return all Categories
         // in createdDate-DESC order with the correct stats
         val stats = offload {
             categories.insert(Category.new("cat0"))
@@ -65,7 +46,7 @@ class CategoryDaoTest : BaseRoboTest() {
             db.items().insert(Item.new(cat3, "item35", rating = 3))
             db.items().insert(Item.new(cat3, "item36", rating = 5))
 
-            categories.loadAllWithStatsAsList()
+            categories.loadAllStatsDirect()
         }
 
         Assert.assertNotNull(stats)
@@ -94,7 +75,7 @@ class CategoryDaoTest : BaseRoboTest() {
         // delete should also delete any items assigned to this category
         offload {
             val cat1 = categories.insert(Category.new("cat1"))
-            val stats = db.categories().byIdDirect(cat1)
+            val stats = db.categories().statsByIdDirect(cat1)
 
             val item11 = db.items().insert(Item.new(cat1, "item11", rating = -1))
             val item12 = db.items().insert(Item.new(cat1, "item12", rating = 2))
@@ -115,8 +96,8 @@ class CategoryDaoTest : BaseRoboTest() {
     }
 
     @Test
-    fun byIdDirect() {
-        // byIdDirect should load a category with stats
+    fun statsByIdDirect() {
+        // statsByIdDirect should load a category with stats
         val stats = offload {
             categories.insert(Category.new("fuzz1"))
             val cat1 = categories.insert(Category.new("cat1"))
@@ -130,7 +111,7 @@ class CategoryDaoTest : BaseRoboTest() {
             db.items().insert(Item.new(fuzz2, "item22", rating = 5))
             db.items().insert(Item.new(fuzz2, "item23", rating = 2))
 
-            categories.byIdDirect(cat1)
+            categories.statsByIdDirect(cat1)
         }
 
         Assert.assertNotNull(stats)
@@ -141,8 +122,8 @@ class CategoryDaoTest : BaseRoboTest() {
     }
 
     @Test
-    fun byIdDirect_withoutItems() {
-        // byIdDirect should load a category with stats even when it has no items
+    fun statsByIdDirect_withoutItems() {
+        // statsByIdDirect should load a category with stats even when it has no items
         val stats = offload {
             val cat1 = categories.insert(Category.new("cat1"))
             val fuzz1 = categories.insert(Category.new("fuzz1"))
@@ -157,7 +138,7 @@ class CategoryDaoTest : BaseRoboTest() {
             db.items().insert(Item.new(fuzz2, "item23", rating = 2))
 
 
-            categories.byIdDirect(cat1)
+            categories.statsByIdDirect(cat1)
         }
 
         Assert.assertNotNull(stats)

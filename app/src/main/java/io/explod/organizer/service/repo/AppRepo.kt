@@ -21,12 +21,12 @@ interface AppRepo {
     /**
      * Get all Categories, with stats, sorted by createdDate descending
      */
-    fun getAllCategories(): LiveData<List<CategoryStats>>
+    fun getAllCategoryStats(): LiveData<List<CategoryStats>>
 
     /**
      * Look for a Category by id
      */
-    fun getCategoryById(categoryId: Long): LiveData<CategoryStats>
+    fun getCategoryStatsById(categoryId: Long): LiveData<CategoryStats>
 
     /**
      * Create a new Category

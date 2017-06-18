@@ -9,7 +9,6 @@ import io.explod.organizer.service.database.CategoryStats
 interface CategoryDao {
 
     companion object {
-        private const val QUERY_LOAD_ALL_DESCENDING_BY_DATE = "SELECT categories.* FROM categories ORDER BY created_date DESC"
         private const val QUERY_CATEGORY_STATS = "SELECT categories.*, " +
                 "COUNT(items.id) AS num_items, " +
                 "SUM(CASE WHEN items.rating IS NULL OR items.rating NOT BETWEEN 1 AND 5 THEN 0 ELSE 1 END) AS num_rated, " +
@@ -28,26 +27,19 @@ interface CategoryDao {
                 "GROUP BY categories.id, categories.name, categories.created_date"
     }
 
-    @Query(QUERY_LOAD_ALL_DESCENDING_BY_DATE)
-    fun loadAll(): LiveData<List<Category>>
-
-    @VisibleForTesting
-    @Query(QUERY_LOAD_ALL_DESCENDING_BY_DATE)
-    fun loadAllAsList(): List<Category>
-
     @Query(QUERY_CATEGORY_STATS)
-    fun loadAllWithStats(): LiveData<List<CategoryStats>>
+    fun loadAllStats(): LiveData<List<CategoryStats>>
 
     @VisibleForTesting
     @Query(QUERY_CATEGORY_STATS)
-    fun loadAllWithStatsAsList(): List<CategoryStats>
+    fun loadAllStatsDirect(): List<CategoryStats>
 
     @Query(QUERY_CATEGORY_BY_ID)
-    fun byId(id: Long): LiveData<CategoryStats>
+    fun statsById(id: Long): LiveData<CategoryStats>
 
     @VisibleForTesting
     @Query(QUERY_CATEGORY_BY_ID)
-    fun byIdDirect(id: Long): CategoryStats
+    fun statsByIdDirect(id: Long): CategoryStats
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(category: Category): Long

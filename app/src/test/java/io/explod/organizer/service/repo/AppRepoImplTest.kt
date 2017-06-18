@@ -21,7 +21,7 @@ class AppRepoImplTest : BaseRoboTest() {
     @Ignore("(evan) live data problems")
     @Test
     fun getAllCategoriesWithStats() {
-        // getAllCategories should return all Categories
+        // getAllCategoryStats should return all Categories
         // in createdDate-DESC order
         offloadWork {
             val cat1 = repo.db.categories().insert(Category.new("cat1"))
@@ -46,7 +46,7 @@ class AppRepoImplTest : BaseRoboTest() {
 
         }
 
-        val categories = repo.getAllCategories().first { it != null }
+        val categories = repo.getAllCategoryStats().first { it != null }
 
         assertNotNull(categories)
         assertEquals(3, categories!!.size)
@@ -66,10 +66,10 @@ class AppRepoImplTest : BaseRoboTest() {
 
     @Test
     fun getCategoryById_exists() {
-        // getCategoryById should give us a Category if it exists
+        // getCategoryStatsById should give us a Category if it exists
         val existing = offload {
             val id = repo.db.categories().insert(Category.new("exists"))
-            repo.getCategoryById(id)
+            repo.getCategoryStatsById(id)
         }
 
         assertNotNull(existing)
@@ -78,9 +78,9 @@ class AppRepoImplTest : BaseRoboTest() {
     @Ignore("(evan) live data problems")
     @Test
     fun getCategoryById_doesntExist() {
-        // getCategoryById should not give us back a Category
+        // getCategoryStatsById should not give us back a Category
         // if it doesnt exist
-        val data = offload { repo.getCategoryById(Long.MIN_VALUE) }
+        val data = offload { repo.getCategoryStatsById(Long.MIN_VALUE) }
 
         val doesNotExist = data!!.first()
 
@@ -95,7 +95,7 @@ class AppRepoImplTest : BaseRoboTest() {
 
         assertNotEquals(0, category.id)
 
-        val existing = offload { repo.getCategoryById(category.id) }
+        val existing = offload { repo.getCategoryStatsById(category.id) }
 
         assertNotNull(existing)
     }
@@ -120,9 +120,9 @@ class AppRepoImplTest : BaseRoboTest() {
         // deleteCategory should remove a Category from the database
         val data = offload {
             val new = repo.createCategory("cat1")
-            val stats = repo.getCategoryById(new.id).first { it != null }!!
+            val stats = repo.getCategoryStatsById(new.id).first { it != null }!!
             repo.deleteCategory(stats.category)
-            repo.getCategoryById(new.id)
+            repo.getCategoryStatsById(new.id)
         }
 
         val category = data!!.first()

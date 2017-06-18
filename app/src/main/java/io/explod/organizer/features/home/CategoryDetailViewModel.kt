@@ -65,7 +65,7 @@ class CategoryDetailViewModel(val categoryId: Long) : ViewModel() {
         var items: List<Item>? = null
 
         init {
-            addSource(repo.getCategoryById(categoryId)) {
+            addSource(repo.getCategoryStatsById(categoryId)) {
                 this.stats = it
                 updateValue()
             }
