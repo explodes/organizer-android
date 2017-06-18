@@ -120,9 +120,9 @@ class AppRepoImplTest : BaseRoboTest() {
         // deleteCategory should remove a Category from the database
         val data = offload {
             val new = repo.createCategory("cat1")
-            val id = new.id
-            repo.deleteCategory(id)
-            repo.getCategoryById(id)
+            val stats = repo.getCategoryById(new.id).first { it != null }!!
+            repo.deleteCategory(stats.category)
+            repo.getCategoryById(new.id)
         }
 
         val category = data!!.first()
@@ -231,8 +231,8 @@ class AppRepoImplTest : BaseRoboTest() {
             if (categoryId <= 0) fail("Unable to insert category")
 
             val new = repo.createItem(categoryId, "item1")
-            val id = new.id
-            repo.deleteItem(id)
+            val item = repo.getItemById(new.id).first { it != null }!!
+            repo.deleteItem(item)
             repo.getItemById(new.id)
         }
 

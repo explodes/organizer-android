@@ -57,7 +57,7 @@ class AppImpl : App() {
 /**
  * Helper class that initializes the Tracker
  */
-private class TrackerInitializer {
+class TrackerInitializer {
 
     companion object {
         private val TAG = TrackerInitializer::class.java.simpleName

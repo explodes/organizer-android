@@ -94,12 +94,13 @@ class CategoryDaoTest : BaseRoboTest() {
         // delete should also delete any items assigned to this category
         offload {
             val cat1 = categories.insert(Category.new("cat1"))
+            val stats = db.categories().byIdDirect(cat1)
 
             val item11 = db.items().insert(Item.new(cat1, "item11", rating = -1))
             val item12 = db.items().insert(Item.new(cat1, "item12", rating = 2))
             val item13 = db.items().insert(Item.new(cat1, "item13", rating = 4))
 
-            categories.delete(cat1)
+            categories.delete(stats.category)
 
             offload {
                 assertNull(db.items().byId(item11).first())
