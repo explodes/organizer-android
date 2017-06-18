@@ -34,4 +34,9 @@
         <item quantity="other">%d stars</item>
     </plurals>
 
+    <!-- Feature: ItemDetail -->
+    <string name="item_detail_content_image">Custom item image</string>
+    <string name="item_detail_item_name_hint">Item name</string>
+    <string name="item_detail_item_missing_name">Name cannot be empty</string>
+
 </resources>

@@ -12,17 +12,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import io.explod.arch.data.Item
-import io.explod.organizer.App.Companion.tracker
 import io.explod.organizer.R
 import io.explod.organizer.extensions.*
 import io.explod.organizer.features.common.BaseFragment
 import io.explod.organizer.features.common.EditTextDialog
 import io.explod.organizer.features.common.ListAdapter
 import io.explod.organizer.features.common.ListDiffCallback
+import io.explod.organizer.injection.ObjectGraph.injector
 import io.explod.organizer.service.database.CategoryStats
 import io.explod.organizer.service.tracking.LevelW
+import io.explod.organizer.service.tracking.LoggedException
+import io.explod.organizer.service.tracking.Tracker
 import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.android.synthetic.main.fragment_category_detail.*
+import javax.inject.Inject
 
 class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
 
@@ -39,14 +42,22 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
         private val ARG_CATEGORY_ID = "categoryId"
     }
 
+    @Inject
+    lateinit var tracker: Tracker
+
     val categoryDetailModel by getModelWithFactory(CategoryDetailViewModel::class, { CategoryDetailViewModel.Factory(args.getLong(ARG_CATEGORY_ID)) })
 
     val categoryItemsAdapter by lazy(LazyThreadSafetyMode.NONE) { CategoryItemAdapter() }
 
     var stats: CategoryStats? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_category_detail, container, false)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        injector.inject(this)
+    }
+
+    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater?.inflate(R.layout.fragment_category_detail, container, false)
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
@@ -72,8 +83,7 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
 
     override fun onItemClick(item: Item) {
         tracker.event("categoryDetailItemClick", mapOf("name" to item.name))
-        // todo(evan): show item details
-        mainActivity?.showSnackbar("todo: show item details")
+        mainActivity?.pushFragment(ItemDetailFragment.new(item.id))
     }
 
     fun onCategoryItems(items: List<CategoryItem>?) {
@@ -95,7 +105,7 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
                         if (!TextUtils.isEmpty(newText)) {
                             categoryDetailModel.createItem(stats.category.id, newText)
                                     .compose(bindToLifecycle())
-                                    .subscribeBy(onError = { tracker.recordException(LevelW, Exception("unable to create item", it)) })
+                                    .subscribeBy(onError = { tracker.recordException(LevelW, LoggedException("Unable to create item", it)) })
                         } else {
                             mainActivity?.showSnackbar(R.string.category_detail_item_name_empty, length = Snackbar.LENGTH_LONG, actionRes = R.string.category_detail_item_empty_retry_action, action = {
                                 showCreateItemDialog()
@@ -201,7 +211,7 @@ class CategoryItemAdapter : ListAdapter<CategoryItem, CategoryItemAdapter.Catego
 
         holder.rating.text = when {
             res == null || item.rating == -1 -> ""
-            else -> res.getQuantityString(R.plurals.category_list_num_items, item.rating, item.rating)
+            else -> res.getQuantityString(R.plurals.category_detail_rating, item.rating, item.rating)
         }
     }
 

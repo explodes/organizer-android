@@ -14,9 +14,9 @@ import javax.inject.Inject
 abstract class App : Application() {
 
     companion object {
-        val TAG: String = App::class.java.simpleName
         lateinit var app: App
-        lateinit var tracker: Tracker
+
+        private lateinit var tracker: Tracker
     }
 
     override fun onCreate() {
@@ -50,6 +50,10 @@ class AppImpl : App() {
 
 class TrackerInitializer {
 
+    companion object {
+        private val TAG = TrackerInitializer::class.java.simpleName
+    }
+
     @Inject
     lateinit var tracker: Tracker
 
@@ -69,7 +73,7 @@ class TrackerInitializer {
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         {},
-                        { Log.e(App.TAG, "error initializing tracker", it) }
+                        { Log.e(TAG, "error initializing tracker", it) }
                 )
         return tracker
     }

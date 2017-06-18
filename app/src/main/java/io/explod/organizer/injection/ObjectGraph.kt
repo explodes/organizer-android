@@ -2,10 +2,7 @@ package io.explod.organizer.injection
 
 import dagger.Component
 import io.explod.organizer.TrackerInitializer
-import io.explod.organizer.features.home.CategoryDetailViewModel
-import io.explod.organizer.features.home.CategoryListFragment
-import io.explod.organizer.features.home.CategoryListViewModel
-import io.explod.organizer.features.home.MainActivity
+import io.explod.organizer.features.home.*
 import io.explod.organizer.service.repo.AppRepoImpl
 import io.explod.organizer.service.repo.AsyncAppRepo
 import javax.inject.Singleton
@@ -54,4 +51,7 @@ interface Injector {
     fun inject(target: CategoryListViewModel)
     fun inject(target: CategoryListFragment)
     fun inject(target: CategoryDetailViewModel)
+    fun inject(target: ItemDetailViewModel)
+    fun inject(target: CategoryDetailFragment)
+    fun inject(itemDetailFragment: ItemDetailFragment)
 }

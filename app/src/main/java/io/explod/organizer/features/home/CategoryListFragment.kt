@@ -31,14 +31,13 @@ class CategoryListFragment : BaseFragment(), CategoryAdapter.Listener {
 
         fun new(): CategoryListFragment = CategoryListFragment()
 
-        private val TAG = CategoryListFragment::class.java.simpleName
-
     }
 
     @Inject
     lateinit var tracker: Tracker
 
     val categoriesModel by getModel(CategoryListViewModel::class)
+
     val categoriesAdapter by lazy(LazyThreadSafetyMode.NONE) { CategoryAdapter() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,8 +45,8 @@ class CategoryListFragment : BaseFragment(), CategoryAdapter.Listener {
         injector.inject(this)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_category_list, container, false)
+    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater?.inflate(R.layout.fragment_category_list, container, false)
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {

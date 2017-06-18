@@ -22,6 +22,7 @@ import io.explod.organizer.features.common.EditTextDialog
 import io.explod.organizer.injection.ObjectGraph.injector
 import io.explod.organizer.service.database.CategoryStats
 import io.explod.organizer.service.tracking.LevelW
+import io.explod.organizer.service.tracking.LoggedException
 import io.explod.organizer.service.tracking.Tracker
 import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.android.synthetic.main.activity_main.*
@@ -33,10 +34,6 @@ import javax.inject.Inject
  * MainActivity is also responsible for building and controlling the actions in the NavDrawer.
  */
 class MainActivity : BaseActivity() {
-
-    companion object {
-        private val FRAGTAG_CATEGORY_LIST = "categoryList"
-    }
 
     @Inject
     lateinit var tracker: Tracker
@@ -69,7 +66,7 @@ class MainActivity : BaseActivity() {
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.container, CategoryListFragment.new(), FRAGTAG_CATEGORY_LIST)
+                    .replace(R.id.container, CategoryListFragment.new())
                     .commit()
         }
 
@@ -82,10 +79,10 @@ class MainActivity : BaseActivity() {
 
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
-            tracker.event("backPressWithDrawerOpen")
+            tracker.event("backPress", mapOf("closeDrawer", "true"))
             drawer_layout.closeDrawer(GravityCompat.START)
         } else {
-            tracker.event("backPressWithDrawerClosed")
+            tracker.event("backPress", mapOf("closeDrawer", "false"))
             super.onBackPressed()
         }
     }
@@ -115,7 +112,7 @@ class MainActivity : BaseActivity() {
                         if (!TextUtils.isEmpty(newText)) {
                             categoryModel.createCategory(newText)
                                     .compose(bindToLifecycle())
-                                    .subscribeBy(onError = { tracker.recordException(LevelW, Exception("unable to create category", it)) })
+                                    .subscribeBy(onError = { tracker.recordException(LevelW, LoggedException("Unable to create category", it)) })
                         } else {
                             showSnackbar(R.string.home_error_category_name_empty, length = Snackbar.LENGTH_LONG, actionRes = R.string.home_error_category_name_empty_retry_action, action = {
                                 showCreateCategoryDialog()
@@ -150,8 +147,7 @@ class MainActivity : BaseActivity() {
             tracker.event("navCategoryItemClick", mapOf("name" to "category", "title" to item.title))
             val tag = item.actionView?.tag ?: return
             if (tag is Category) {
-                // todo(evan): open up Category view
-                showSnackbar("todo: open category")
+                pushFragment(CategoryDetailFragment.new(tag.id))
             }
         }
 
