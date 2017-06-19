@@ -6,14 +6,15 @@ package io.explod.organizer.service.tracking
 
 import android.content.Context
 import android.support.annotation.IntDef
+import android.util.Log
 import io.reactivex.Completable
 
-const val LevelV = android.util.Log.VERBOSE
-const val LevelD = android.util.Log.DEBUG
-const val LevelI = android.util.Log.INFO
-const val LevelW = android.util.Log.WARN
-const val LevelE = android.util.Log.ERROR
-const val LevelA = android.util.Log.ASSERT
+const val LevelV = Log.VERBOSE
+const val LevelD = Log.DEBUG
+const val LevelI = Log.INFO
+const val LevelW = Log.WARN
+const val LevelE = Log.ERROR
+const val LevelA = Log.ASSERT
 
 @IntDef(LevelV.toLong(), LevelD.toLong(), LevelI.toLong(), LevelW.toLong(), LevelE.toLong(), LevelA.toLong())
 annotation class LogLevel

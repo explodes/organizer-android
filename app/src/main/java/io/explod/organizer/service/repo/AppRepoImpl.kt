@@ -6,9 +6,9 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import com.fernandocejas.arrow.optional.Optional
 import io.explod.arch.data.AppDatabase
-import io.explod.arch.data.Category
-import io.explod.arch.data.Item
-import io.explod.arch.data.hasPhoto
+import io.explod.organizer.service.database.Category
+import io.explod.organizer.service.database.Item
+import io.explod.organizer.service.database.hasPhoto
 import io.explod.organizer.extensions.closeCleanly
 import io.explod.organizer.injection.ObjectGraph.injector
 import io.explod.organizer.service.database.CategoryStats

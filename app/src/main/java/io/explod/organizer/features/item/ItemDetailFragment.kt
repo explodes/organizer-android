@@ -1,8 +1,9 @@
-package io.explod.organizer.features.home
+package io.explod.organizer.features.item
 
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.provider.MediaStore
 import android.support.annotation.StringRes
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,8 +12,8 @@ import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
 import com.fernandocejas.arrow.optional.Optional
-import io.explod.arch.data.Item
-import io.explod.arch.data.hasPhoto
+import io.explod.organizer.service.database.Item
+import io.explod.organizer.service.database.hasPhoto
 import io.explod.organizer.R
 import io.explod.organizer.extensions.args
 import io.explod.organizer.extensions.getModelWithFactory
@@ -317,7 +318,7 @@ class ItemDetailFragment : BaseFragment() {
         val getIntent = Intent(Intent.ACTION_GET_CONTENT)
         getIntent.type = "image/*"
 
-        val pickIntent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        val pickIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         pickIntent.type = "image/*"
 
         val chooserIntent = Intent.createChooser(getIntent, "Select Image")

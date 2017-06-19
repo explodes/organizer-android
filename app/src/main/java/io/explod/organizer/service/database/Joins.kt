@@ -2,7 +2,6 @@ package io.explod.organizer.service.database
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Embedded
-import io.explod.arch.data.Category
 
 class CategoryStats {
 

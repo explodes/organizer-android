@@ -1,7 +1,7 @@
 package io.explod.organizer.service.repo
 
-import io.explod.arch.data.Category
-import io.explod.arch.data.Item
+import io.explod.organizer.service.database.Category
+import io.explod.organizer.service.database.Item
 import meta.BaseRoboTest
 import meta.getOrNull
 import org.junit.Assert.*

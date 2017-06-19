@@ -1,8 +1,8 @@
 package io.explod.organizer.service.repo
 
-import io.explod.arch.data.Category
-import io.explod.arch.data.Item
 import io.explod.arch.data.ItemDao
+import io.explod.organizer.service.database.Category
+import io.explod.organizer.service.database.Item
 import meta.BaseRoboTest
 import org.junit.Assert
 import org.junit.Before

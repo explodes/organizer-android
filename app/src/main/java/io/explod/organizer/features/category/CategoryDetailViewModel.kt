@@ -1,18 +1,17 @@
-package io.explod.organizer.features.home
+package io.explod.organizer.features.category
 
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
-import io.explod.arch.data.Category
-import io.explod.arch.data.Item
 import io.explod.organizer.extensions.observeOnMain
 import io.explod.organizer.injection.ObjectGraph.injector
+import io.explod.organizer.service.database.Category
 import io.explod.organizer.service.database.CategoryStats
+import io.explod.organizer.service.database.Item
 import io.explod.organizer.service.repo.AsyncAppRepo
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
-import javax.inject.Inject
 
 
 /**
@@ -27,7 +26,7 @@ data class CategoryItem(val stats: CategoryStats, val item: Item?)
  */
 class CategoryDetailViewModel(val categoryId: Long) : ViewModel() {
 
-    @Inject
+    @javax.inject.Inject
     lateinit var repo: AsyncAppRepo
 
     val categoryItems: Flowable<List<CategoryItem>> by lazy(LazyThreadSafetyMode.NONE) { CategoryItemMediator(categoryId).toFlowable().observeOnMain() }
@@ -68,10 +67,13 @@ class CategoryDetailViewModel(val categoryId: Long) : ViewModel() {
          * is null.
          */
         internal fun toFlowable(): Flowable<List<CategoryItem>> {
-            val category: Flowable<CategoryStats> = repo.getCategoryStatsById(categoryId).filter { it.isPresent }.map { it.get() }
-            val items: Flowable<List<Item>> = repo.getAllItemsForCategory(categoryId)
-            val zipper = BiFunction<CategoryStats, List<Item>, List<CategoryItem>> { stats, items -> zip(stats, items) }
-            return Flowable.combineLatest(category, items, zipper)
+            return Flowable.combineLatest(
+                    repo.getCategoryStatsById(categoryId)
+                            .filter { it.isPresent }
+                            .map { it.get() },
+                    repo.getAllItemsForCategory(categoryId),
+                    BiFunction<CategoryStats, List<Item>, List<CategoryItem>> { stats, items -> zip(stats, items) }
+            )
         }
 
         private fun zip(stats: CategoryStats, items: List<Item>): List<CategoryItem> {

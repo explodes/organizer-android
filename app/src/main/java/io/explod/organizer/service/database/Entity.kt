@@ -1,4 +1,4 @@
-package io.explod.arch.data
+package io.explod.organizer.service.database
 
 import android.arch.persistence.room.*
 import android.arch.persistence.room.ForeignKey.CASCADE

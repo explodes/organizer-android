@@ -3,8 +3,8 @@ package io.explod.organizer.service.repo
 import android.content.Context
 import android.net.Uri
 import com.fernandocejas.arrow.optional.Optional
-import io.explod.arch.data.Category
-import io.explod.arch.data.Item
+import io.explod.organizer.service.database.Category
+import io.explod.organizer.service.database.Item
 import io.explod.organizer.service.database.CategoryStats
 import io.reactivex.Flowable
 import java.io.IOException

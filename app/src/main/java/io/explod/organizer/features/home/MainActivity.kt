@@ -9,10 +9,13 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.text.TextUtils
 import android.view.MenuItem
 import android.view.View
+import features.category.CategoryDetailFragment
+import features.category.CategoryListViewModel
 import io.explod.organizer.R
 import io.explod.organizer.extensions.getModel
 import io.explod.organizer.extensions.getResourceNameOrUnknown
 import io.explod.organizer.extensions.showSnackbar
+import io.explod.organizer.features.category.CategoryListFragment
 import io.explod.organizer.features.common.BaseActivity
 import io.explod.organizer.features.common.BaseFragment
 import io.explod.organizer.features.common.EditTextDialog

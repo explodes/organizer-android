@@ -1,15 +1,14 @@
-package io.explod.organizer.features.home
+package io.explod.organizer.features.item
 
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import android.content.Context
 import android.net.Uri
-import io.explod.arch.data.Item
 import io.explod.organizer.extensions.observeOnMain
 import io.explod.organizer.injection.ObjectGraph.injector
+import io.explod.organizer.service.database.Item
 import io.explod.organizer.service.repo.AsyncAppRepo
 import io.reactivex.Completable
-import javax.inject.Inject
 
 /**
  * ItemDetailViewModel is responsible for loading an Item.
@@ -18,7 +17,7 @@ import javax.inject.Inject
  */
 class ItemDetailViewModel(val itemId: Long) : ViewModel() {
 
-    @Inject
+    @javax.inject.Inject
     lateinit var repo: AsyncAppRepo
 
     val item by lazy(LazyThreadSafetyMode.NONE) { repo.getItemById(itemId).observeOnMain() }
