@@ -1,28 +1,21 @@
-package io.explod.organizer.service.repo
+package io.explod.organizer.service.database
 
-import io.explod.arch.data.CategoryDao
-import io.explod.organizer.service.database.Category
-import io.explod.organizer.service.database.Item
-import meta.BaseRoboTest
-import org.junit.Assert
 import org.junit.Assert.assertNull
-import org.junit.Before
-import org.junit.Test
 
-class CategoryDaoTest : BaseRoboTest() {
+class CategoryDaoTest : meta.BaseRoboTest() {
 
-    lateinit var categories: CategoryDao
+    lateinit var categories: io.explod.arch.data.CategoryDao
 
-    @Before
+    @org.junit.Before
     fun setUp() {
         categories = db.categories()
     }
 
 
-    @Test
+    @org.junit.Test
     fun delete_shouldDeleteItems() {
         // delete should also delete any items assigned to this category
-        offload {
+        meta.BaseRoboTest.Companion.offload {
             val cat1 = categories.insert(Category.new("cat1"))
             val stats = db.categories().statsById(cat1).blockingFirst().first()
 
@@ -38,10 +31,10 @@ class CategoryDaoTest : BaseRoboTest() {
         }
     }
 
-    @Test
+    @org.junit.Test
     fun statsById() {
         // statsByIdDirect should load a category with stats
-        val stats = offload {
+        val stats = meta.BaseRoboTest.Companion.offload {
             categories.insert(Category.new("fuzz1"))
             val cat1 = categories.insert(Category.new("cat1"))
             val fuzz2 = categories.insert(Category.new("fuzz2"))
@@ -57,17 +50,17 @@ class CategoryDaoTest : BaseRoboTest() {
             categories.statsById(cat1).blockingFirst().first()
         }
 
-        Assert.assertNotNull(stats)
-        Assert.assertEquals("cat1", stats!!.category.name)
-        Assert.assertEquals(2, stats.numRated)
-        Assert.assertEquals(6, stats.totalRating)
-        Assert.assertEquals(3.0f, stats.averageRating)
+        org.junit.Assert.assertNotNull(stats)
+        org.junit.Assert.assertEquals("cat1", stats!!.category.name)
+        org.junit.Assert.assertEquals(2, stats.numRated)
+        org.junit.Assert.assertEquals(6, stats.totalRating)
+        org.junit.Assert.assertEquals(3.0f, stats.averageRating)
     }
 
-    @Test
+    @org.junit.Test
     fun statsById_withoutItems() {
         // statsByIdDirect should load a category with stats even when it has no items
-        val stats = offload {
+        val stats = meta.BaseRoboTest.Companion.offload {
             val cat1 = categories.insert(Category.new("cat1"))
             val fuzz1 = categories.insert(Category.new("fuzz1"))
             val fuzz2 = categories.insert(Category.new("fuzz2"))
@@ -84,11 +77,11 @@ class CategoryDaoTest : BaseRoboTest() {
             categories.statsById(cat1).blockingFirst().first()
         }
 
-        Assert.assertNotNull(stats)
-        Assert.assertEquals("cat1", stats!!.category.name)
-        Assert.assertEquals(0, stats.numRated)
-        Assert.assertEquals(0, stats.totalRating)
-        Assert.assertEquals(0f, stats.averageRating)
+        org.junit.Assert.assertNotNull(stats)
+        org.junit.Assert.assertEquals("cat1", stats!!.category.name)
+        org.junit.Assert.assertEquals(0, stats.numRated)
+        org.junit.Assert.assertEquals(0, stats.totalRating)
+        org.junit.Assert.assertEquals(0f, stats.averageRating)
     }
 
 }

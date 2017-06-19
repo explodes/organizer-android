@@ -1,12 +1,18 @@
 package io.explod.organizer.service.repo
 
+import android.net.Uri
+import android.support.annotation.IntRange
 import io.explod.organizer.service.database.Category
 import io.explod.organizer.service.database.Item
 import meta.BaseRoboTest
 import meta.getOrNull
+import meta.newWithTestDate
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
+import java.util.*
+
+
 
 class AppRepoImplTest : BaseRoboTest() {
 
@@ -22,25 +28,25 @@ class AppRepoImplTest : BaseRoboTest() {
         // getAllCategoryStats should return all Categories
         // in createdDate-DESC order
         val categories = offload {
-            val cat1 = repo.db.categories().insert(Category.new("cat1"))
-            val cat2 = repo.db.categories().insert(Category.new("cat2"))
-            val cat3 = repo.db.categories().insert(Category.new("cat3"))
+            val cat1id = repo.db.categories().insert(Category.newWithTestDate("cat1"))
+            val cat2id = repo.db.categories().insert(Category.newWithTestDate("cat2"))
+            val cat3id = repo.db.categories().insert(Category.newWithTestDate("cat3"))
 
-            repo.db.items().insert(Item.new(cat1, "item11", rating = -1))
-            repo.db.items().insert(Item.new(cat1, "item12", rating = 2))
-            repo.db.items().insert(Item.new(cat1, "item13", rating = 4))
+            repo.db.items().insert(Item.newWithTestDate(cat1id, "item11", rating = -1))
+            repo.db.items().insert(Item.newWithTestDate(cat1id, "item12", rating = 2))
+            repo.db.items().insert(Item.newWithTestDate(cat1id, "item13", rating = 4))
 
-            repo.db.items().insert(Item.new(cat2, "item21", rating = 3))
-            repo.db.items().insert(Item.new(cat2, "item22", rating = -1))
-            repo.db.items().insert(Item.new(cat2, "item23", rating = 5))
-            repo.db.items().insert(Item.new(cat2, "item24", rating = -1))
+            repo.db.items().insert(Item.newWithTestDate(cat2id, "item21", rating = 3))
+            repo.db.items().insert(Item.newWithTestDate(cat2id, "item22", rating = -1))
+            repo.db.items().insert(Item.newWithTestDate(cat2id, "item23", rating = 5))
+            repo.db.items().insert(Item.newWithTestDate(cat2id, "item24", rating = -1))
 
-            repo.db.items().insert(Item.new(cat3, "item31", rating = 1))
-            repo.db.items().insert(Item.new(cat3, "item32", rating = 3))
-            repo.db.items().insert(Item.new(cat3, "item33", rating = 5))
-            repo.db.items().insert(Item.new(cat3, "item34", rating = 1))
-            repo.db.items().insert(Item.new(cat3, "item35", rating = 3))
-            repo.db.items().insert(Item.new(cat3, "item36", rating = 5))
+            repo.db.items().insert(Item.newWithTestDate(cat3id, "item31", rating = 1))
+            repo.db.items().insert(Item.newWithTestDate(cat3id, "item32", rating = 3))
+            repo.db.items().insert(Item.newWithTestDate(cat3id, "item33", rating = 5))
+            repo.db.items().insert(Item.newWithTestDate(cat3id, "item34", rating = 1))
+            repo.db.items().insert(Item.newWithTestDate(cat3id, "item35", rating = 3))
+            repo.db.items().insert(Item.newWithTestDate(cat3id, "item36", rating = 5))
 
             repo.getAllCategoryStats().blockingFirst()
 
@@ -66,7 +72,7 @@ class AppRepoImplTest : BaseRoboTest() {
     fun getCategoryById_exists() {
         // getCategoryStatsById should give us a Category if it exists
         val existing = offload {
-            val id = repo.db.categories().insert(Category.new("exists"))
+            val id = repo.db.categories().insert(Category.newWithTestDate("exists"))
             repo.getCategoryStatsById(id)
         }
 
@@ -135,16 +141,16 @@ class AppRepoImplTest : BaseRoboTest() {
         // getAllItemsForCategory should return all Items that
         // belong to a certain Category
         val items = offload {
-            val categoryId1 = repo.db.categories().insert(Category.new("cat1"))
+            val categoryId1 = repo.db.categories().insert(Category.newWithTestDate("cat1"))
             if (categoryId1 <= 0) fail("Unable to insert category")
-            repo.db.items().insert(Item.new(categoryId1, "item11"))
-            repo.db.items().insert(Item.new(categoryId1, "item12"))
+            repo.db.items().insert(Item.newWithTestDate(categoryId1, "item11"))
+            repo.db.items().insert(Item.newWithTestDate(categoryId1, "item12"))
 
-            val categoryId2 = repo.db.categories().insert(Category.new("cat2"))
+            val categoryId2 = repo.db.categories().insert(Category.newWithTestDate("cat2"))
             if (categoryId2 <= 0) fail("Unable to insert category")
-            repo.db.items().insert(Item.new(categoryId2, "item21"))
-            repo.db.items().insert(Item.new(categoryId2, "item22"))
-            repo.db.items().insert(Item.new(categoryId2, "item23"))
+            repo.db.items().insert(Item.newWithTestDate(categoryId2, "item21"))
+            repo.db.items().insert(Item.newWithTestDate(categoryId2, "item22"))
+            repo.db.items().insert(Item.newWithTestDate(categoryId2, "item23"))
 
             repo.getAllItemsForCategory(categoryId2).blockingFirst()
         }
@@ -160,9 +166,9 @@ class AppRepoImplTest : BaseRoboTest() {
     fun getItemById_exists() {
         // getItemById should return an Item if it exists
         val exists = offload {
-            val catId = repo.db.categories().insert(Category.new("exists"))
+            val catId = repo.db.categories().insert(Category.newWithTestDate("exists"))
 
-            val id = repo.db.items().insert(Item.new(catId, "exists"))
+            val id = repo.db.items().insert(Item.newWithTestDate(catId, "exists"))
             repo.getItemById(id)
         }
 
@@ -184,7 +190,7 @@ class AppRepoImplTest : BaseRoboTest() {
         // createItem should persist an item in the database
         // and should set the ID of the input Item
         val item = offload {
-            val categoryId = repo.db.categories().insert(Category.new("cat1"))
+            val categoryId = repo.db.categories().insert(Category.newWithTestDate("cat1"))
             if (categoryId <= 0) fail("Unable to insert category")
 
             repo.createItem(categoryId, "item1")
@@ -204,7 +210,7 @@ class AppRepoImplTest : BaseRoboTest() {
     fun updateItem() {
         // updateItem should persist changes to an Item
         val item = offload {
-            val categoryId = repo.db.categories().insert(Category.new("cat1"))
+            val categoryId = repo.db.categories().insert(Category.newWithTestDate("cat1"))
             if (categoryId <= 0) fail("Unable to insert category")
 
             val new = repo.createItem(categoryId, "item1")
@@ -221,7 +227,7 @@ class AppRepoImplTest : BaseRoboTest() {
     fun deleteItem() {
         // deleteItem should remove an Item from the database
         val item = offload {
-            val categoryId = repo.db.categories().insert(Category.new("cat1"))
+            val categoryId = repo.db.categories().insert(Category.newWithTestDate("cat1"))
             if (categoryId <= 0) fail("Unable to insert category")
 
             val new = repo.createItem(categoryId, "item1")

@@ -1,4 +1,4 @@
-package io.explod.organizer.injection
+package meta.injection
 
 import dagger.Module
 import dagger.Provides

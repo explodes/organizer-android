@@ -1,4 +1,4 @@
-package io.explod.organizer.injection
+package meta.injection
 
 import android.arch.persistence.room.Room
 import dagger.Module
