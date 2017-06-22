@@ -1,11 +1,12 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="App" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
+  <configuration default="false" name="UI Tests" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests">
     <module name="app" />
-    <option name="DEPLOY" value="true" />
-    <option name="ARTIFACT_NAME" value="" />
-    <option name="PM_INSTALL_OPTIONS" value="" />
-    <option name="ACTIVITY_EXTRA_FLAGS" value="" />
-    <option name="MODE" value="default_activity" />
+    <option name="TESTING_TYPE" value="0" />
+    <option name="INSTRUMENTATION_RUNNER_CLASS" value="android.support.test.runner.AndroidJUnitRunner" />
+    <option name="METHOD_NAME" value="" />
+    <option name="CLASS_NAME" value="" />
+    <option name="PACKAGE_NAME" value="" />
+    <option name="EXTRA_OPTIONS" value="" />
     <option name="CLEAR_LOGCAT" value="false" />
     <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
     <option name="SKIP_NOOP_APK_INSTALLATIONS" value="true" />
@@ -39,10 +40,8 @@
       <option name="SHOW_OPTIMIZED_WARNING" value="true" />
     </Native>
     <Profilers>
-      <option name="ADVANCED_PROFILING_ENABLED" value="true" />
+      <option name="ADVANCED_PROFILING_ENABLED" value="false" />
     </Profilers>
-    <option name="DEEP_LINK" value="" />
-    <option name="ACTIVITY_CLASS" value="" />
     <method>
       <option name="Android.Gradle.BeforeRunTask" enabled="true" />
       <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" />

@@ -1,6 +1,7 @@
 package io.explod.organizer.service.repo
 
 import meta.BaseRoboTest
+import meta.await
 import meta.getOrNull
 import org.junit.Assert.*
 import org.junit.Before
@@ -19,7 +20,7 @@ class AsyncAppRepoTest : BaseRoboTest() {
     fun createCategory() {
         // createCategory should wrap AppRepo.createCategory
         // as a Single<Category>
-        val cat = offload {
+        val cat = await {
             val cat1 = repo.createCategory("cat1").blockingGet()
             repo.synchronously.getCategoryStatsById(cat1.id).blockingFirst().getOrNull()
         }
@@ -32,7 +33,7 @@ class AsyncAppRepoTest : BaseRoboTest() {
     fun updateCategory() {
         // updateCategory should wrap AppRepo.updateCategory
         // as a Completable
-        val cat = offload {
+        val cat = await {
             val cat1 = repo.synchronously.createCategory("cat1")
 
             cat1.name = "cat2"
@@ -49,7 +50,7 @@ class AsyncAppRepoTest : BaseRoboTest() {
     fun deleteCategory() {
         // deleteCategory should wrap AppRepo.deleteCategory
         // as a Completable
-        val cat = offload {
+        val cat = await {
             val cat1 = repo.synchronously.createCategory("cat1")
 
             repo.deleteCategory(cat1).blockingAwait()
@@ -64,7 +65,7 @@ class AsyncAppRepoTest : BaseRoboTest() {
     fun getItemById() {
         // getItemById should wrap AppRepo.getItemById
         // as a Single<Optional<Category>>
-        val item = offload {
+        val item = await {
             val cat1 = repo.synchronously.createCategory("cat1")
             val item1 = repo.synchronously.createItem(cat1.id, "item1")
 
@@ -78,7 +79,7 @@ class AsyncAppRepoTest : BaseRoboTest() {
     fun createItem() {
         // createCategory should wrap AppRepo.createCategory
         // as a Single<Category>
-        val item = offload {
+        val item = await {
             val cat1 = repo.createCategory("cat1").blockingGet()
 
             val item1 = repo.createItem(cat1.id, "item1").blockingGet()
@@ -94,7 +95,7 @@ class AsyncAppRepoTest : BaseRoboTest() {
     fun updateItem() {
         // updateCategory should wrap AppRepo.updateCategory
         // as a Completable
-        val item = offload {
+        val item = await {
             val cat1 = repo.synchronously.createCategory("cat1")
             val item1 = repo.synchronously.createItem(cat1.id, "item1")
 
@@ -112,7 +113,7 @@ class AsyncAppRepoTest : BaseRoboTest() {
     fun deleteItem() {
         // deleteCategory should wrap AppRepo.deleteCategory
         // as a Completable
-        val item = offload {
+        val item = await {
             val cat1 = repo.synchronously.createCategory("cat1")
             val item1 = repo.synchronously.createItem(cat1.id, "item1")
 

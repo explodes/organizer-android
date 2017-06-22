@@ -1,5 +1,6 @@
 package io.explod.organizer.service.database
 
+import meta.await
 import org.junit.Assert.assertNull
 
 class CategoryDaoTest : meta.BaseRoboTest() {
@@ -15,7 +16,7 @@ class CategoryDaoTest : meta.BaseRoboTest() {
     @org.junit.Test
     fun delete_shouldDeleteItems() {
         // delete should also delete any items assigned to this category
-        meta.BaseRoboTest.Companion.offload {
+        await {
             val cat1 = categories.insert(Category.new("cat1"))
             val stats = db.categories().statsById(cat1).blockingFirst().first()
 
@@ -34,7 +35,7 @@ class CategoryDaoTest : meta.BaseRoboTest() {
     @org.junit.Test
     fun statsById() {
         // statsByIdDirect should load a category with stats
-        val stats = meta.BaseRoboTest.Companion.offload {
+        val stats = await {
             categories.insert(Category.new("fuzz1"))
             val cat1 = categories.insert(Category.new("cat1"))
             val fuzz2 = categories.insert(Category.new("fuzz2"))
@@ -60,7 +61,7 @@ class CategoryDaoTest : meta.BaseRoboTest() {
     @org.junit.Test
     fun statsById_withoutItems() {
         // statsByIdDirect should load a category with stats even when it has no items
-        val stats = meta.BaseRoboTest.Companion.offload {
+        val stats = await {
             val cat1 = categories.insert(Category.new("cat1"))
             val fuzz1 = categories.insert(Category.new("fuzz1"))
             val fuzz2 = categories.insert(Category.new("fuzz2"))

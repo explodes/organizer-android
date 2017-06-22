@@ -14,6 +14,19 @@ import io.explod.organizer.service.repo.AsyncAppRepo
 import javax.inject.Singleton
 
 
+/**
+ * Declares the structure of our injection
+ */
+@Component(modules = arrayOf(
+        AppModule::class,
+        TrackerModule::class,
+        RepoModule::class,
+        DatabaseModule::class,
+        ImageModule::class
+))
+@Singleton
+interface ObjectComponent : Injector
+
 object ObjectGraph {
 
     private lateinit var objectComponent: ObjectComponent
@@ -33,19 +46,6 @@ object ObjectGraph {
     }
 
 }
-
-/**
- * Declares the structure of our injection
- */
-@Component(modules = arrayOf(
-        AppModule::class,
-        TrackerModule::class,
-        RepoModule::class,
-        DatabaseModule::class,
-        ImageModule::class
-))
-@Singleton
-interface ObjectComponent : Injector
 
 /**
  * Injector interface. Add inject methods here as needed.

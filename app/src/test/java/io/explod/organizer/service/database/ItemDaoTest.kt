@@ -4,6 +4,7 @@ import io.explod.arch.data.ItemDao
 import io.explod.organizer.service.database.Category
 import io.explod.organizer.service.database.Item
 import meta.BaseRoboTest
+import meta.await
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -21,7 +22,7 @@ class ItemDaoTest : BaseRoboTest() {
     fun byCategory() {
         // byCategoryAsList should return all Items that
         // belong to a certain Category in createdDate-DESC order
-        val all = offload {
+        val all = await {
             val categoryId1 = db.categories().insert(Category.Companion.new("cat1"))
             if (categoryId1 <= 0) Assert.fail("Unable to insert category")
             items.insert(Item.Companion.new(categoryId1, "item11"))

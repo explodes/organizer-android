@@ -17,9 +17,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 import javax.inject.Inject
 
 
@@ -32,82 +29,13 @@ import javax.inject.Inject
 @Config(constants = BuildConfig::class, application = TestApp::class, sdk = intArrayOf(25))
 abstract class BaseRoboTest {
 
-    companion object {
-
-        val DEFAULT_TIMEOUT = 5_000L
-
-        private val OFFLOAD_NAME = "offload-"
-        private var sOffloadCount = 0L
-        private val nextOffloadName: String
-            get() = "$OFFLOAD_NAME-${++sOffloadCount}"
-
-        /**
-         * Wait for the Main looper to catch up on all of its pending events.
-
-         * Anything queued on the Main Looper will be executed.
-         */
-        fun waitForMainLooper() {
-            val context = RuntimeEnvironment.application
-            val scheduler = shadowOf(context.mainLooper).scheduler
-            while (scheduler.advanceToLastPostedRunnable()) {
-            }
-        }
-
-        /**
-         * Offload work to a new thread, but block until complete.
-         *
-         * A great use-case is when you are testing Room stuff, and
-         * are not allowed to query on the main thread. Adding
-         * [android.arch.persistence.room.RoomDatabase.Builder.allowMainThreadQueries]
-         * will let the tests run without crashing, but the app may be misusing
-         * Room and the tests will not reflect that.
-         */
-        @Throws(Exception::class)
-        fun <T> offload(timeoutMillis: Long = DEFAULT_TIMEOUT, work: () -> T): T? {
-            val success = arrayOf(false)
-            val error = arrayOfNulls<Throwable>(1)
-            val result = arrayOfNulls<Any>(1)
-            val latch = CountDownLatch(1)
-            val thread = Thread({
-                try {
-                    result[0] = work()
-                    success[0] = true
-                } catch (ex: Throwable) {
-                    error[0] = ex
-                } finally {
-                    latch.countDown()
-                }
-            }, nextOffloadName)
-            thread.start()
-            latch.await(timeoutMillis, TimeUnit.MILLISECONDS)
-            if (error[0] != null) {
-                throw RuntimeException("Offloading was interrupted because of a failure", error[0])
-            }
-            if (!success[0]) {
-                throw TimeoutException("Unable to perform work in a reasonable time frame")
-            }
-            @Suppress("UNCHECKED_CAST")
-            return result[0] as T
-        }
-
-        /**
-         * Shorthand for [offload] when you do not need a result
-         */
-        fun offloadWork(timeoutMillis: Long = DEFAULT_TIMEOUT, work: () -> Unit) {
-            offload(timeoutMillis, work)
-        }
-    }
-
     /**
-     * Direct database access for tests
+     * Direct database access for most of the unit tests
      */
-    @Inject
-    lateinit var db: AppDatabase // Robolectric will automatically close the database
+    val db: AppDatabase
+        get() = injection.db
 
-    @Before
-    fun injectDependencies() {
-        testInjector.inject(this)
-    }
+    private val injection = BaseRoboTestInjection()
 
     /**
      * Set up mockito
@@ -115,6 +43,37 @@ abstract class BaseRoboTest {
     @Before
     fun setUpDexCache() {
         System.setProperty("dexmaker.dexcache", RuntimeEnvironment.application.cacheDir.path)
+    }
+
+    /**
+     * Wait for the Main looper to catch up on all of its pending events.
+
+     * Anything queued on the Main Looper will be executed.
+     */
+    fun waitForMainLooper() {
+        val context = RuntimeEnvironment.application
+        val scheduler = shadowOf(context.mainLooper).scheduler
+        while (scheduler.advanceToLastPostedRunnable()) {
+        }
+    }
+
+}
+
+/**
+ * Injection helper made a separate class to avoid confusing Dagger
+ * about ambiguous inject methods.
+ */
+class BaseRoboTestInjection {
+
+    @Inject
+    lateinit var db: AppDatabase // Robolectric will automatically close the database
+
+    init {
+        inject()
+    }
+
+    fun inject() {
+        testInjector.inject(this)
     }
 
 }

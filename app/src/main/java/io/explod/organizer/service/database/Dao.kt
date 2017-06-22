@@ -43,6 +43,9 @@ interface CategoryDao {
     @Delete
     fun delete(category: Category): Int
 
+    @Query("DELETE FROM categories")
+    fun clear()
+
 }
 
 @Dao
@@ -67,5 +70,8 @@ interface ItemDao {
 
     @Delete
     fun delete(item: Item): Int
+
+    @Query("DELETE FROM items")
+    fun clear()
 
 }

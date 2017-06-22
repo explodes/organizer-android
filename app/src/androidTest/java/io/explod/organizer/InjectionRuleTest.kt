@@ -1,37 +1,39 @@
 package io.explod.organizer
 
+import android.support.test.runner.AndroidJUnit4
 import io.explod.organizer.service.images.ImageLoader
 import io.explod.organizer.service.images.PicassoImageLoader
-import meta.BaseRoboTest
-import meta.injection.TestObjectGraph.testInjector
-import org.junit.Assert
+import meta.injection.UiTestObjectGraph.uiTestInjector
+import meta.rules.InjectionRule
+import org.junit.Assert.fail
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 import javax.inject.Inject
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
-class BaseRoboTestTest : BaseRoboTest() {
+@RunWith(AndroidJUnit4::class)
+class InjectionRuleTest {
+
+    @get:Rule
+    val injectionRule = InjectionRule()
 
     @Inject
     lateinit var imageLoader: ImageLoader
 
     @Before
     fun setUp() {
-        testInjector.inject(this)
+        uiTestInjector.inject(this)
     }
 
     @Test
-    fun testInjector_shouldNotInjectRealDependencies() {
+
+    fun uiTestInjector_shouldNotInjectRealDependencies() {
         // the test injector should be set up and able to
         // inject our test-version of dependencies
         if (imageLoader is PicassoImageLoader) {
-            Assert.fail("Got PicassoImageLoader when we shouldn't have")
+            fail("Got PicassoImageLoader when we shouldn't have")
         }
 
     }
-
 }
