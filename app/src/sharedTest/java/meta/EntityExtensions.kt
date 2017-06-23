@@ -9,7 +9,7 @@ import java.util.*
 private var testDate: Long = 0
 
 /**
- * Create a new uniquely-dated Item
+ * Create a new Category with a deterministically increasing createdDate.
  */
 fun Item.Companion.newWithTestDate(categoryId: Long, name: String, @IntRange(from = -1, to = 5) rating: Int = -1, photo: Uri? = null): Item {
     val item = Item.new(categoryId, name, rating = rating, photo = photo)
@@ -18,7 +18,7 @@ fun Item.Companion.newWithTestDate(categoryId: Long, name: String, @IntRange(fro
 }
 
 /**
- * Create a new uniquely-dated Category
+ * Create a new Category with a deterministically increasing createdDate.
  */
 fun Category.Companion.newWithTestDate(name: String): Category {
     val cat = Category.new(name)

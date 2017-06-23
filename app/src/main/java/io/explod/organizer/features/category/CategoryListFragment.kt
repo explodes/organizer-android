@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import features.category.CategoryDetailFragment
 import features.category.CategoryListViewModel
 import io.explod.organizer.R
 import io.explod.organizer.extensions.find
@@ -84,7 +83,7 @@ class CategoryListFragment : BaseFragment(), CategoryAdapter.Listener {
 
     override fun onCategoryClick(category: CategoryStats) {
         tracker.event("categoryListCategoryClick", mapOf("name" to category.category.name))
-        mainActivity?.pushFragment(CategoryDetailFragment.Companion.new(category.category.id))
+        mainActivity?.pushFragment(CategoryDetailFragment.new(category.category.id))
     }
 
     /**

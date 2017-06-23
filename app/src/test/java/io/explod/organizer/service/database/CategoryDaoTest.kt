@@ -1,6 +1,7 @@
 package io.explod.organizer.service.database
 
 import meta.await
+import meta.newWithTestDate
 import org.junit.Assert.assertNull
 
 class CategoryDaoTest : meta.BaseRoboTest() {
@@ -17,12 +18,12 @@ class CategoryDaoTest : meta.BaseRoboTest() {
     fun delete_shouldDeleteItems() {
         // delete should also delete any items assigned to this category
         await {
-            val cat1 = categories.insert(Category.new("cat1"))
+            val cat1 = categories.insert(Category.newWithTestDate("cat1"))
             val stats = db.categories().statsById(cat1).blockingFirst().first()
 
-            val item11 = db.items().insert(Item.new(cat1, "item11", rating = -1))
-            val item12 = db.items().insert(Item.new(cat1, "item12", rating = 2))
-            val item13 = db.items().insert(Item.new(cat1, "item13", rating = 4))
+            val item11 = db.items().insert(Item.newWithTestDate(cat1, "item11", rating = -1))
+            val item12 = db.items().insert(Item.newWithTestDate(cat1, "item12", rating = 2))
+            val item13 = db.items().insert(Item.newWithTestDate(cat1, "item13", rating = 4))
 
             categories.delete(stats.category)
 
@@ -36,17 +37,17 @@ class CategoryDaoTest : meta.BaseRoboTest() {
     fun statsById() {
         // statsByIdDirect should load a category with stats
         val stats = await {
-            categories.insert(Category.new("fuzz1"))
-            val cat1 = categories.insert(Category.new("cat1"))
-            val fuzz2 = categories.insert(Category.new("fuzz2"))
+            categories.insert(Category.newWithTestDate("fuzz1"))
+            val cat1 = categories.insert(Category.newWithTestDate("cat1"))
+            val fuzz2 = categories.insert(Category.newWithTestDate("fuzz2"))
 
-            db.items().insert(Item.new(cat1, "item11", rating = -1))
-            db.items().insert(Item.new(cat1, "item12", rating = 2))
-            db.items().insert(Item.new(cat1, "item13", rating = 4))
+            db.items().insert(Item.newWithTestDate(cat1, "item11", rating = -1))
+            db.items().insert(Item.newWithTestDate(cat1, "item12", rating = 2))
+            db.items().insert(Item.newWithTestDate(cat1, "item13", rating = 4))
 
-            db.items().insert(Item.new(fuzz2, "item21", rating = 3))
-            db.items().insert(Item.new(fuzz2, "item22", rating = 5))
-            db.items().insert(Item.new(fuzz2, "item23", rating = 2))
+            db.items().insert(Item.newWithTestDate(fuzz2, "item21", rating = 3))
+            db.items().insert(Item.newWithTestDate(fuzz2, "item22", rating = 5))
+            db.items().insert(Item.newWithTestDate(fuzz2, "item23", rating = 2))
 
             categories.statsById(cat1).blockingFirst().first()
         }
@@ -62,17 +63,17 @@ class CategoryDaoTest : meta.BaseRoboTest() {
     fun statsById_withoutItems() {
         // statsByIdDirect should load a category with stats even when it has no items
         val stats = await {
-            val cat1 = categories.insert(Category.new("cat1"))
-            val fuzz1 = categories.insert(Category.new("fuzz1"))
-            val fuzz2 = categories.insert(Category.new("fuzz2"))
+            val cat1 = categories.insert(Category.newWithTestDate("cat1"))
+            val fuzz1 = categories.insert(Category.newWithTestDate("fuzz1"))
+            val fuzz2 = categories.insert(Category.newWithTestDate("fuzz2"))
 
-            db.items().insert(Item.new(fuzz1, "item11", rating = -1))
-            db.items().insert(Item.new(fuzz1, "item12", rating = 2))
-            db.items().insert(Item.new(fuzz1, "item13", rating = 4))
+            db.items().insert(Item.newWithTestDate(fuzz1, "item11", rating = -1))
+            db.items().insert(Item.newWithTestDate(fuzz1, "item12", rating = 2))
+            db.items().insert(Item.newWithTestDate(fuzz1, "item13", rating = 4))
 
-            db.items().insert(Item.new(fuzz2, "item21", rating = 3))
-            db.items().insert(Item.new(fuzz2, "item22", rating = 5))
-            db.items().insert(Item.new(fuzz2, "item23", rating = 2))
+            db.items().insert(Item.newWithTestDate(fuzz2, "item21", rating = 3))
+            db.items().insert(Item.newWithTestDate(fuzz2, "item22", rating = 5))
+            db.items().insert(Item.newWithTestDate(fuzz2, "item23", rating = 2))
 
 
             categories.statsById(cat1).blockingFirst().first()

@@ -1,4 +1,4 @@
-package features.category
+package io.explod.organizer.features.category
 
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -10,8 +10,6 @@ import android.view.*
 import android.widget.TextView
 import io.explod.organizer.R
 import io.explod.organizer.extensions.*
-import io.explod.organizer.features.category.CategoryDetailViewModel
-import io.explod.organizer.features.category.CategoryItem
 import io.explod.organizer.features.common.*
 import io.explod.organizer.features.item.ItemDetailFragment
 import io.explod.organizer.injection.ObjectGraph.injector
@@ -23,6 +21,7 @@ import io.explod.organizer.service.tracking.LoggedException
 import io.explod.organizer.service.tracking.Tracker
 import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.android.synthetic.main.fragment_category_detail.*
+import javax.inject.Inject
 
 /**
  * CategoryDetailFragment has the responsibility to show a Category's information and items.
@@ -36,7 +35,7 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
         fun new(categoryId: Long): CategoryDetailFragment {
             val frag = CategoryDetailFragment()
             val args = Bundle()
-            args.putLong(CategoryDetailFragment.Companion.ARG_CATEGORY_ID, categoryId)
+            args.putLong(ARG_CATEGORY_ID, categoryId)
             frag.arguments = args
             return frag
         }
@@ -46,7 +45,7 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
         private const val ARG_CATEGORY_ID = "categoryId"
     }
 
-    @javax.inject.Inject
+    @Inject
     lateinit var tracker: Tracker
 
     val categoryDetailModel by getModelWithFactory(CategoryDetailViewModel::class, { CategoryDetailViewModel.Factory(args.getLong(ARG_CATEGORY_ID)) })
@@ -85,7 +84,7 @@ class CategoryDetailFragment : BaseFragment(), CategoryItemAdapter.Listener {
                 .compose(bindToLifecycle())
                 .subscribeBy(
                         onNext = { onCategoryItems(it) },
-                        onError = { tracker.log(LevelE, CategoryDetailFragment.Companion.TAG, "Unable to observe category items", it) }
+                        onError = { tracker.log(LevelE, TAG, "Unable to observe category items", it) }
                 )
     }
 
@@ -198,7 +197,7 @@ class CategoryItemAdapter : ListAdapter<CategoryItem, CategoryItemAdapter.Catego
         private const val ID_MASK_ITEM = 0x4000000000000000L
     }
 
-    var listener: CategoryItemAdapter.Listener? = null
+    var listener: Listener? = null
 
     init {
         setHasStableIds(true)
@@ -211,26 +210,26 @@ class CategoryItemAdapter : ListAdapter<CategoryItem, CategoryItemAdapter.Catego
     override fun getItemId(position: Int): Long {
         val ci = this[position] ?: return 0L
         return when (getItemViewType(position)) {
-            CategoryItemAdapter.Companion.TYPE_CATEGORY -> ci.stats.category.id.or(CategoryItemAdapter.Companion.ID_MASK_CATEGORY)
-            CategoryItemAdapter.Companion.TYPE_ITEM -> (ci.item?.id ?: 0L).or(CategoryItemAdapter.Companion.ID_MASK_ITEM)
+            TYPE_CATEGORY -> ci.stats.category.id.or(ID_MASK_CATEGORY)
+            TYPE_ITEM -> (ci.item?.id ?: 0L).or(ID_MASK_ITEM)
             else -> 0L
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-        val ci = this[position] ?: return CategoryItemAdapter.Companion.TYPE_INVALID
-        if (ci.item != null) return CategoryItemAdapter.Companion.TYPE_ITEM
-        return CategoryItemAdapter.Companion.TYPE_CATEGORY
+        val ci = this[position] ?: return TYPE_INVALID
+        if (ci.item != null) return TYPE_ITEM
+        return TYPE_CATEGORY
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): CategoryItemAdapter.CategoryItemViewHolder? {
+    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): CategoryItemViewHolder? {
         return when (viewType) {
-            CategoryItemAdapter.Companion.TYPE_CATEGORY -> {
+            TYPE_CATEGORY -> {
                 val context = parent?.context ?: return null
                 val view = LayoutInflater.from(context).inflate(R.layout.card_category_detail_category, parent, false)
                 return CategoryViewHolder(view)
             }
-            CategoryItemAdapter.Companion.TYPE_ITEM -> {
+            TYPE_ITEM -> {
                 val context = parent?.context ?: return null
                 val view = LayoutInflater.from(context).inflate(R.layout.card_category_detail_item, parent, false)
                 return ItemViewHolder(view)
@@ -239,25 +238,25 @@ class CategoryItemAdapter : ListAdapter<CategoryItem, CategoryItemAdapter.Catego
         }
     }
 
-    override fun onBindViewHolder(unknownHolder: CategoryItemAdapter.CategoryItemViewHolder?, position: Int) {
+    override fun onBindViewHolder(unknownHolder: CategoryItemViewHolder?, position: Int) {
         if (unknownHolder == null) return
         val ci = this[position] ?: return
 
         when (getItemViewType(position)) {
-            CategoryItemAdapter.Companion.TYPE_CATEGORY -> {
+            TYPE_CATEGORY -> {
                 val stats = ci.stats
-                val holder = unknownHolder as CategoryItemAdapter.CategoryViewHolder
+                val holder = unknownHolder as CategoryViewHolder
                 onBindCategoryViewHolder(stats, holder)
             }
-            CategoryItemAdapter.Companion.TYPE_ITEM -> {
+            TYPE_ITEM -> {
                 val item = ci.item ?: return
-                val holder = unknownHolder as CategoryItemAdapter.ItemViewHolder
+                val holder = unknownHolder as ItemViewHolder
                 onBindItemViewHolder(item, holder)
             }
         }
     }
 
-    fun onBindCategoryViewHolder(stats: CategoryStats, holder: CategoryItemAdapter.CategoryViewHolder) {
+    fun onBindCategoryViewHolder(stats: CategoryStats, holder: CategoryViewHolder) {
         val res = holder.itemView.context?.resources
 
         holder.name.text = stats.category.name
@@ -269,7 +268,7 @@ class CategoryItemAdapter : ListAdapter<CategoryItem, CategoryItemAdapter.Catego
     }
 
 
-    fun onBindItemViewHolder(item: Item, holder: CategoryItemAdapter.ItemViewHolder) {
+    fun onBindItemViewHolder(item: Item, holder: ItemViewHolder) {
         val res = holder.itemView.context?.resources
 
         holder.name.text = item.name
@@ -289,14 +288,14 @@ class CategoryItemAdapter : ListAdapter<CategoryItem, CategoryItemAdapter.Catego
 
     abstract inner class CategoryItemViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
-    inner class CategoryViewHolder(view: View) : CategoryItemAdapter.CategoryItemViewHolder(view) {
+    inner class CategoryViewHolder(view: View) : CategoryItemViewHolder(view) {
 
         val name by find<TextView>(R.id.text_name)
         val itemCount by find<TextView>(R.id.text_item_count)
 
     }
 
-    inner class ItemViewHolder(view: View) : CategoryItemAdapter.CategoryItemViewHolder(view), View.OnClickListener {
+    inner class ItemViewHolder(view: View) : CategoryItemViewHolder(view), View.OnClickListener {
 
         val name by find<TextView>(R.id.text_name)
         val rating by find<TextView>(R.id.text_rating)

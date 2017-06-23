@@ -9,7 +9,7 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.text.TextUtils
 import android.view.MenuItem
 import android.view.View
-import features.category.CategoryDetailFragment
+import io.explod.organizer.features.category.CategoryDetailFragment
 import features.category.CategoryListViewModel
 import io.explod.organizer.R
 import io.explod.organizer.extensions.getModel
