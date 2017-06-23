@@ -6,7 +6,7 @@ import org.junit.Assert.assertNull
 
 class CategoryDaoTest : meta.BaseRoboTest() {
 
-    lateinit var categories: io.explod.arch.data.CategoryDao
+    lateinit var categories: CategoryDao
 
     @org.junit.Before
     fun setUp() {

@@ -12,8 +12,6 @@ import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
 import com.fernandocejas.arrow.optional.Optional
-import io.explod.organizer.service.database.Item
-import io.explod.organizer.service.database.hasPhoto
 import io.explod.organizer.R
 import io.explod.organizer.extensions.args
 import io.explod.organizer.extensions.getModelWithFactory
@@ -22,6 +20,8 @@ import io.explod.organizer.extensions.showSnackbar
 import io.explod.organizer.features.common.BaseFragment
 import io.explod.organizer.features.common.ConfirmationDialog
 import io.explod.organizer.injection.ObjectGraph.injector
+import io.explod.organizer.service.database.Item
+import io.explod.organizer.service.database.hasPhoto
 import io.explod.organizer.service.images.ImageLoader
 import io.explod.organizer.service.tracking.LevelE
 import io.explod.organizer.service.tracking.LevelW

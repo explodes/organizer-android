@@ -1,10 +1,8 @@
-package io.explod.arch.data
+package io.explod.organizer.service.database
 
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.RoomDatabase
 import android.arch.persistence.room.TypeConverters
-import io.explod.organizer.service.database.Category
-import io.explod.organizer.service.database.Item
 
 
 @Database(

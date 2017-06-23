@@ -1,11 +1,11 @@
 package io.explod.organizer.injection
 
 import dagger.Component
-import io.explod.organizer.features.category.CategoryDetailFragment
-import features.category.CategoryListViewModel
 import io.explod.organizer.TrackerInitializer
+import io.explod.organizer.features.category.CategoryDetailFragment
 import io.explod.organizer.features.category.CategoryDetailViewModel
 import io.explod.organizer.features.category.CategoryListFragment
+import io.explod.organizer.features.category.CategoryListViewModel
 import io.explod.organizer.features.home.MainActivity
 import io.explod.organizer.features.item.ItemDetailFragment
 import io.explod.organizer.features.item.ItemDetailViewModel

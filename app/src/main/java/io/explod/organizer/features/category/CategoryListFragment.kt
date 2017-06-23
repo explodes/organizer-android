@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import features.category.CategoryListViewModel
 import io.explod.organizer.R
 import io.explod.organizer.extensions.find
 import io.explod.organizer.extensions.getModel

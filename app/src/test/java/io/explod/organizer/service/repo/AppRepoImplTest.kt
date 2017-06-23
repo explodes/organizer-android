@@ -11,7 +11,6 @@ import org.junit.Before
 import org.junit.Test
 
 
-
 class AppRepoImplTest : BaseRoboTest() {
 
     lateinit var repo: AppRepoImpl

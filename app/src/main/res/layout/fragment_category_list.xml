@@ -9,6 +9,7 @@
     tools:context=".features.home.MainActivity">
 
     <include layout="@layout/stub_category_list_empty"/>
+
     <include layout="@layout/stub_category_list"/>
 
     <android.support.design.widget.FloatingActionButton

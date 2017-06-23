@@ -3,10 +3,10 @@ package io.explod.organizer.service.repo
 import android.content.Context
 import android.net.Uri
 import com.fernandocejas.arrow.optional.Optional
-import io.explod.organizer.service.database.Category
-import io.explod.organizer.service.database.Item
 import io.explod.organizer.injection.ObjectGraph.injector
+import io.explod.organizer.service.database.Category
 import io.explod.organizer.service.database.CategoryStats
+import io.explod.organizer.service.database.Item
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single

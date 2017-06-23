@@ -26,8 +26,7 @@ import javax.inject.Singleton
         UiTestImageModule::class
 ))
 @Singleton
-interface UiTestObjectComponent : ObjectComponent, UiTestInjector {
-}
+interface UiTestObjectComponent : ObjectComponent, UiTestInjector
 
 /**
  * ObjectGraph used to provide dependencies in test code

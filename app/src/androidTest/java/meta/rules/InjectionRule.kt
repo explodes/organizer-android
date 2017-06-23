@@ -1,12 +1,12 @@
 package meta.rules
 
 import android.support.test.InstrumentationRegistry
-import io.explod.arch.data.AppDatabase
 import io.explod.organizer.App
 import io.explod.organizer.injection.AppModule
 import io.explod.organizer.injection.ObjectComponent
 import io.explod.organizer.injection.ObjectGraph.injector
 import io.explod.organizer.injection.ObjectGraph.setObjectComponent
+import io.explod.organizer.service.database.AppDatabase
 import meta.injection.DaggerUiTestObjectComponent
 import meta.injection.UiTestObjectComponent
 import meta.injection.UiTestObjectGraph.uiTestInjector

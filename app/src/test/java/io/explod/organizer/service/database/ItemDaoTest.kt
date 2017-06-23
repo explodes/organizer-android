@@ -1,8 +1,8 @@
 package io.explod.organizer.service.database
 
-import io.explod.arch.data.ItemDao
 import meta.BaseRoboTest
 import meta.await
+import meta.newWithTestDate
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

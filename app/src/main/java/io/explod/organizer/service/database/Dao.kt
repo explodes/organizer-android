@@ -1,9 +1,6 @@
-package io.explod.arch.data
+package io.explod.organizer.service.database
 
 import android.arch.persistence.room.*
-import io.explod.organizer.service.database.Category
-import io.explod.organizer.service.database.CategoryStats
-import io.explod.organizer.service.database.Item
 import io.reactivex.Flowable
 
 @Dao

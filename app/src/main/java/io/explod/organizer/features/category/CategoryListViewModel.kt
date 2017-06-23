@@ -1,4 +1,4 @@
-package features.category
+package io.explod.organizer.features.category
 
 import android.arch.lifecycle.ViewModel
 import io.explod.organizer.extensions.observeOnMain

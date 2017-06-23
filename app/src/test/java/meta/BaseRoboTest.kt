@@ -4,10 +4,10 @@
 
 package meta
 
-import io.explod.arch.data.AppDatabase
 import io.explod.organizer.App
 import io.explod.organizer.BuildConfig
 import io.explod.organizer.injection.AppModule
+import io.explod.organizer.service.database.AppDatabase
 import meta.injection.DaggerTestObjectComponent
 import meta.injection.TestObjectComponent
 import meta.injection.TestObjectGraph.testInjector
