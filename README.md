@@ -7,14 +7,16 @@ This app lets you perform the simple task of creating notes and optionally attac
  - Written in Kotlin
  - Unit testing (w/ Robolectric)
  - Ui testing (w/ Espresso)
- - Android architecture components such as `ViewModel` and `LiveData`
+ - Android architecture components such as `ViewModel`
  - Event tracking and error reporting with Crashlytics
  - Also uses RxJava, Dagger, Picasso
  
 #### Running tests
 When running UI tests with Robolectric, it is sometimes necessary to run them multiple times to work around the `Stub!!!` RuntimeException.
 
-There is a shared run configuration in the AS project that will run the tests (if you try hard enough).
+ - _It is known that Roboelectric's automatic closing of `SQLiteDatabase` interferes with this app's setup (Room, injected in-memory instances for tests) so pardon our dust._
+
+There is a shared run configuration in the AS project that will run tests.
 
 ### Overview
 Create an app to help organize the user's stuff. The app will include the ability to create multiple categories, and add items to those categories. Items will include information about the item and an optional photo.
@@ -30,7 +32,5 @@ Create an app to help organize the user's stuff. The app will include the abilit
    - a name
    - a description
    - an optional image
-
-### Bonus
-1.​ Add the ability to rate items 1 to 5 stars. Include the rating on the item list.
-2​. Add the ability to delete categories, which should also delete all items in the category.
+ - Add the ability to rate items 1 to 5 stars. Include the rating on the item list.
+ - Add the ability to delete categories, which should also delete all items in the category.
